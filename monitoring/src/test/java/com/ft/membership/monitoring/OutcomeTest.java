@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import static com.ft.membership.monitoring.Outcome.DomainObjectKey.ErightsGroupId;
 import static com.ft.membership.monitoring.Outcome.DomainObjectKey.ErightsId;
 import static com.ft.membership.monitoring.Outcome.operation;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 
@@ -61,7 +62,7 @@ public class OutcomeTest {
                 eq("success"),
                 eq(userId),
                 eq(100),
-                eq(new Outcome.ToStringWrapper("that quick brown fox"))
+                eq(new ToStringWrapper("that quick brown fox"))
         );
     }
 
@@ -83,7 +84,7 @@ public class OutcomeTest {
                 eq("success"),
                 eq(userId),
                 eq(1000),
-                eq(new Outcome.ToStringWrapper("that quick brown fox"))
+                eq(new ToStringWrapper("that quick brown fox"))
         );
     }
 
@@ -104,7 +105,7 @@ public class OutcomeTest {
                 eq("simple_success"),
                 eq("success"),
                 eq(1000),
-                eq(new Outcome.ToStringWrapper("that quick brown fox")),
+                eq(new ToStringWrapper("that quick brown fox")),
                 eq(userId),
                 eq(100)
         );
@@ -164,8 +165,8 @@ public class OutcomeTest {
                 eq("operation={} outcome={} nullableInput={} nullableResult={}"),
                 eq("allow_nulls"),
                 eq("success"),
-                eq(new Outcome.ToStringWrapper(null)),
-                eq(new Outcome.ToStringWrapper(null))
+                eq(new ToStringWrapper(null)),
+                eq(new ToStringWrapper(null))
         );
 
     }
@@ -190,4 +191,33 @@ public class OutcomeTest {
                 .wasFailure().throwingException(null).log(logger);
 
     }
+
+    @Test
+    public void should_log_error_if_used_in_try_with_resources_and_not_terminated() throws Exception {
+
+        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(logger)) {
+            // do nothing
+        }
+
+        verify(logger).error(
+                eq("operation=try-with-resources outcome=failure a=5 exception=\"java.lang.RuntimeException: operation auto-closed\""),
+                any(RuntimeException.class)
+        );
+    }
+
+    @Test
+    public void should_log_normally_if_used_in_try_with_resources_and_properly_terminated() throws Exception {
+
+        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(logger)) {
+            operation.wasSuccessful().log(logger);
+        }
+
+        verify(logger).info(
+                eq("operation={} outcome={} a={}"),
+                eq("try-with-resources"),
+                eq("success"),
+                eq(5)
+        );
+    }
+
 }

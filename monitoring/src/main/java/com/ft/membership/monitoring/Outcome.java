@@ -1,6 +1,7 @@
 package com.ft.membership.monitoring;
 
 import com.ft.membership.domain.UserId;
+import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +13,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class Outcome {
 
     public enum DomainObjectKey {
+        UserId("userId"),
+        UserEmail("userEmail"),
         ErightsId("erightsId"),
-        ErightsGroupId("erightsGroupId"),
-        UserEmail("userEmail");
+        ErightsGroupId("erightsGroupId");
 
         private final String key;
 
@@ -31,9 +33,11 @@ public class Outcome {
         return new Operation(operation);
     }
     
-    public static class Operation extends Parameters {
+    public static class Operation extends Parameters implements AutoCloseable {
 
         private final String operation;
+        private boolean terminated;
+        private Object actorOrLogger;
 
         public Operation(final String operation) {
             checkNotNull(operation, "require operation");
@@ -41,7 +45,7 @@ public class Outcome {
         }
         
         public Operation with(final UserId id) {
-            putNoWrap("userId", id);
+            putNoWrap(DomainObjectKey.UserId.getKey(), id);
             return this;
         }
 
@@ -54,6 +58,12 @@ public class Outcome {
             return this;
         }
 
+        public Operation started(final Object actorOrLogger) {
+            this.actorOrLogger = actorOrLogger;
+            new LogFormatter(actorOrLogger).log(this);
+            return this;
+        }
+
         public Yield wasSuccessful() {
             return new Yield(this);
         }
@@ -62,13 +72,21 @@ public class Outcome {
             return new Failure(this);
         }
 
-        public Operation started(Object actorOrLogger) {
-            new LogFormatter(actorOrLogger).log(this);
-            return this;
+        protected void terminated() {
+            this.terminated = true;
         }
 
         protected String getName() {
             return operation;
+        }
+
+        @Override
+        public void close() {
+            if(!terminated) {
+                this.wasFailure()
+                        .throwingException(new RuntimeException("operation auto-closed")) // so we at least get a stack-trace
+                        .log(Optional.fromNullable(actorOrLogger).or(this));
+            }
         }
     }
 
@@ -118,6 +136,11 @@ public class Outcome {
 
         public Failure withMessage(final String message) {
             putWrapped("message", message);
+            return this;
+        }
+
+        public Failure withDetail(final String key, final Object detail) {
+            putWrapped(key,detail);
             return this;
         }
 
@@ -181,6 +204,8 @@ public class Outcome {
         }
 
         protected void log(final Operation operation, Yield yield) {
+            operation.terminated();
+
             final Map<String, Object> all = new LinkedHashMap<>();
             all.put("operation", operation.getName());
             all.put("outcome", OUTCOME_IS_SUCCESS);
@@ -191,6 +216,8 @@ public class Outcome {
         }
 
         protected void log(final Operation operation, Failure failure) {
+            operation.terminated();
+
             final Map<String, Object> all = new LinkedHashMap<>();
             all.put("operation", operation.getName());
             all.put("outcome", OUTCOME_IS_FAILURE);
@@ -237,28 +264,4 @@ public class Outcome {
         }
     }
 
-    protected static class ToStringWrapper {
-        private final Object value;
-
-        public ToStringWrapper(final Object value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            if(value == null) return "null";
-            return "\"" + value.toString().replace("\"","\\\"") + "\"";
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if(obj instanceof String) {
-                return this.toString().equals(obj);
-            } else if(obj instanceof ToStringWrapper) {
-                if(value == null) return ((ToStringWrapper)obj).value == null;
-                return this.value.equals(((ToStringWrapper)obj).value);
-            }
-            return false;
-        }
-    }
 }
