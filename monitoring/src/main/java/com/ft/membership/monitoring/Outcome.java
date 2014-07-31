@@ -135,7 +135,7 @@ public class Outcome {
         }
 
         public Failure withMessage(final String message) {
-            putWrapped("message", message);
+            putWrapped("errorMessage", message);
             return this;
         }
 

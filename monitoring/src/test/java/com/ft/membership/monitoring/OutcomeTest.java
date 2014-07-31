@@ -118,7 +118,7 @@ public class OutcomeTest {
         operation("simple_failure").wasFailure().withMessage("boo hoo").log(logger);
 
         verify(logger).error(
-                eq("operation=simple_failure outcome=failure message=\"boo hoo\"")
+                eq("operation=simple_failure outcome=failure errorMessage=\"boo hoo\"")
                 );
     }
 
@@ -145,10 +145,12 @@ public class OutcomeTest {
                 .with("y","bat")
                 .wasFailure()
                 .throwingException(ex)
+                .withMessage("got a puncture")
+                .withDetail("tyre","right")
                 .log(logger);
 
         verify(logger).error(
-                eq("operation=simple_failure outcome=failure x=101 y=\"bat\" exception=\"java.lang.RuntimeException: bang!\""),
+                eq("operation=simple_failure outcome=failure x=101 y=\"bat\" errorMessage=\"got a puncture\" tyre=\"right\" exception=\"java.lang.RuntimeException: bang!\""),
                 eq(ex)
         );
     }
