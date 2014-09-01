@@ -1,9 +1,12 @@
 package com.ft.membership.monitoring;
 
 import com.ft.membership.domain.UserId;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
@@ -18,14 +21,20 @@ import static org.mockito.Mockito.verify;
 public class OutcomeTest {
 
     @Mock
-    Logger logger;
+    Logger mockLogger;
 
+    @Before
+    public void setup() {
+        Mockito.when(mockLogger.isInfoEnabled()).thenReturn(true);
+        Mockito.when(mockLogger.isErrorEnabled()).thenReturn(true);
+    }
+    
     @Test
     public void should_log_simple_success() throws Exception {
 
-        operation("simple_success").wasSuccessful().log(logger);
+        operation("simple_success").wasSuccessful().log(mockLogger);
 
-        verify(logger).info(
+        verify(mockLogger).info(
                 "operation={} outcome={}",
                 new Object[]{"simple_success", "success"});
 
@@ -35,13 +44,13 @@ public class OutcomeTest {
     public void should_log_success_for_user_id() throws Exception {
 
         final UserId userId = UserId.randomUserId();
-        operation("simple_success").with(userId).wasSuccessful().log(logger);
+        operation("simple_success").with(userId).wasSuccessful().log(mockLogger);
 
-        verify(logger).info(
-                eq("operation={} outcome={} userId={}"),
+        verify(mockLogger).info(
+                eq("operation={} userId={} outcome={}"),
                 eq("simple_success"),
-                eq("success"),
-                eq(userId)
+                eq(userId),
+                eq("success")
         );
     }
 
@@ -54,15 +63,15 @@ public class OutcomeTest {
                 .with("x", 100)
                 .with("y", "that quick brown fox")
                 .wasSuccessful()
-                .log(logger);
+                .log(mockLogger);
 
-        verify(logger).info(
-                eq("operation={} outcome={} userId={} x={} y={}"),
+        verify(mockLogger).info(
+                eq("operation={} userId={} x={} y={} outcome={}"),
                 eq("simple_success"),
-                eq("success"),
                 eq(userId),
                 eq(100),
-                eq(new ToStringWrapper("that quick brown fox"))
+                eq(new ToStringWrapper("that quick brown fox")),
+                eq("success")
         );
     }
 
@@ -76,15 +85,15 @@ public class OutcomeTest {
                 .with(ErightsId,1000)
                 .with("y", "that quick brown fox")
                 .wasSuccessful()
-                .log(logger);
+                .log(mockLogger);
 
-        verify(logger).info(
-                eq("operation={} outcome={} userId={} erightsId={} y={}"),
+        verify(mockLogger).info(
+                eq("operation={} userId={} erightsId={} y={} outcome={}"),
                 eq("simple_success"),
-                eq("success"),
                 eq(userId),
                 eq(1000),
-                eq(new ToStringWrapper("that quick brown fox"))
+                eq(new ToStringWrapper("that quick brown fox")),
+                eq("success")
         );
     }
 
@@ -98,14 +107,14 @@ public class OutcomeTest {
                 .wasSuccessful()
                 .yielding(userId)
                 .yielding(ErightsGroupId, 100)
-                .log(logger);
+                .log(mockLogger);
 
-        verify(logger).info(
-                eq("operation={} outcome={} erightsId={} y={} userId={} erightsGroupId={}"),
+        verify(mockLogger).info(
+                eq("operation={} erightsId={} y={} outcome={} userId={} erightsGroupId={}"),
                 eq("simple_success"),
-                eq("success"),
                 eq(1000),
                 eq(new ToStringWrapper("that quick brown fox")),
+                eq("success"),
                 eq(userId),
                 eq(100)
         );
@@ -115,9 +124,9 @@ public class OutcomeTest {
     @Test
     public void should_log_simple_failure() throws Exception {
 
-        operation("simple_failure").wasFailure().withMessage("boo hoo").log(logger);
+        operation("simple_failure").wasFailure().withMessage("boo hoo").log(mockLogger);
 
-        verify(logger).error(
+        verify(mockLogger).error(
                 eq("operation=simple_failure outcome=failure errorMessage=\"boo hoo\"")
                 );
     }
@@ -127,9 +136,9 @@ public class OutcomeTest {
 
 
         final Exception ex = new RuntimeException("bang!");
-        operation("simple_failure").wasFailure().throwingException(ex).log(logger);
+        operation("simple_failure").wasFailure().throwingException(ex).log(mockLogger);
 
-        verify(logger).error(
+        verify(mockLogger).error(
                 eq("operation=simple_failure outcome=failure exception=\"java.lang.RuntimeException: bang!\""),
                 eq(ex)
         );
@@ -147,10 +156,10 @@ public class OutcomeTest {
                 .throwingException(ex)
                 .withMessage("got a puncture")
                 .withDetail("tyre","right")
-                .log(logger);
+                .log(mockLogger);
 
-        verify(logger).error(
-                eq("operation=simple_failure outcome=failure x=101 y=\"bat\" errorMessage=\"got a puncture\" tyre=\"right\" exception=\"java.lang.RuntimeException: bang!\""),
+        verify(mockLogger).error(
+                eq("operation=simple_failure x=101 y=\"bat\" outcome=failure errorMessage=\"got a puncture\" tyre=\"right\" exception=\"java.lang.RuntimeException: bang!\""),
                 eq(ex)
         );
     }
@@ -161,13 +170,13 @@ public class OutcomeTest {
                 .with("nullableInput",null)
                 .wasSuccessful()
                 .yielding("nullableResult",null)
-                .log(logger);
+                .log(mockLogger);
 
-        verify(logger).info(
-                eq("operation={} outcome={} nullableInput={} nullableResult={}"),
+        verify(mockLogger).info(
+                eq("operation={} nullableInput={} outcome={} nullableResult={}"),
                 eq("allow_nulls"),
-                eq("success"),
                 eq(new ToStringWrapper(null)),
+                eq("success"),
                 eq(new ToStringWrapper(null))
         );
 
@@ -190,19 +199,19 @@ public class OutcomeTest {
     @Test(expected = NullPointerException.class)
     public void should_not_allow_null_value_for_exception() throws Exception {
         operation("no_null_yield_keys")
-                .wasFailure().throwingException(null).log(logger);
+                .wasFailure().throwingException(null).log(mockLogger);
 
     }
 
     @Test
     public void should_log_error_if_used_in_try_with_resources_and_not_terminated() throws Exception {
 
-        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(logger)) {
+        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
             // do nothing
         }
 
-        verify(logger).error(
-                eq("operation=try-with-resources outcome=failure a=5 exception=\"java.lang.RuntimeException: operation auto-closed\""),
+        verify(mockLogger).error(
+                eq("operation=try-with-resources a=5 outcome=failure exception=\"java.lang.RuntimeException: operation auto-closed\""),
                 any(RuntimeException.class)
         );
     }
@@ -210,15 +219,15 @@ public class OutcomeTest {
     @Test
     public void should_log_normally_if_used_in_try_with_resources_and_properly_terminated() throws Exception {
 
-        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(logger)) {
-            operation.wasSuccessful().log(logger);
+        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
+            operation.wasSuccessful().log(mockLogger);
         }
 
-        verify(logger).info(
-                eq("operation={} outcome={} a={}"),
+        verify(mockLogger).info(
+                eq("operation={} a={} outcome={}"),
                 eq("try-with-resources"),
-                eq("success"),
-                eq(5)
+                eq(5),
+                eq("success")
         );
     }
 

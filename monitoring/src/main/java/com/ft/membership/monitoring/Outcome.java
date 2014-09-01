@@ -2,6 +2,7 @@ package com.ft.membership.monitoring;
 
 import com.ft.membership.domain.UserId;
 import com.google.common.base.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class Outcome {
 
         public Operation started(final Object actorOrLogger) {
             this.actorOrLogger = actorOrLogger;
-            new LogFormatter(actorOrLogger).log(this);
+            new LogFormatter(actorOrLogger).logInfo(this);
             return this;
         }
 
@@ -117,8 +118,13 @@ public class Outcome {
         }
 
         public void log(final Object actorOrLogger) {
-            new LogFormatter(actorOrLogger).log(operation, this);
+            logInfo(actorOrLogger);
         }
+        
+        public void logInfo(Object actorOrLogger) {
+            new LogFormatter(actorOrLogger).logInfo(operation, this);
+        }
+
     }
 
     public static class Failure extends Parameters implements LoggingTerminal {
@@ -153,8 +159,17 @@ public class Outcome {
         }
 
         public void log(Object actorOrLogger) {
-            new LogFormatter(actorOrLogger).log(operation, this);
+            logError(actorOrLogger);
         }
+        
+        public void logInfo(Object actorOrLogger) {
+            new LogFormatter(actorOrLogger).logInfo(operation, this);
+        }
+
+        public void logError(Object actorOrLogger) {
+            new LogFormatter(actorOrLogger).logError(operation, this);
+        }
+
     }
 
     protected static class Parameters {
@@ -195,42 +210,58 @@ public class Outcome {
             }
         }
 
-        public void log(final Operation operation) {
+        public void logInfo(final Operation operation) {
             final Map<String, Object> all = new LinkedHashMap<>();
-            all.put("operation", operation.getName());
-            all.putAll(operation.getParameters());
+            addOperation(operation, all);
 
             logger.info(buildFormatString(all), buildArgumentArray(all));
         }
 
-        protected void log(final Operation operation, Yield yield) {
+        protected void logInfo(final Operation operation, Yield yield) {
             operation.terminated();
 
             final Map<String, Object> all = new LinkedHashMap<>();
-            all.put("operation", operation.getName());
-            all.put("outcome", OUTCOME_IS_SUCCESS);
-            all.putAll(operation.getParameters());
-            all.putAll(yield.getParameters());
+            addOperation(operation, all);
+            addOutcome(OUTCOME_IS_SUCCESS, all);
+            addYield(yield, all);
 
             logger.info(buildFormatString(all), buildArgumentArray(all));
         }
 
-        protected void log(final Operation operation, Failure failure) {
+        protected void logError(final Operation operation, Yield yield) {
             operation.terminated();
 
             final Map<String, Object> all = new LinkedHashMap<>();
-            all.put("operation", operation.getName());
-            all.put("outcome", OUTCOME_IS_FAILURE);
-            all.putAll(operation.getParameters());
-            all.putAll(failure.getParameters());
+            addOperation(operation, all);
+            addOutcome(OUTCOME_IS_SUCCESS, all);
+            addYield(yield, all);
 
-            if(failure.didThrow()) {
-                all.put("exception",new ToStringWrapper(failure.getThrown().toString()));
+            logger.error(buildFormatString(all), buildArgumentArray(all));
+        }
+        
+        protected void logInfo(Operation operation, Failure failure) {
+            operation.terminated();
+            if (logger.isInfoEnabled()) {
+                String failureMessage = buildFailureMessage(operation, failure);
 
-                logger.error(flatten(all), failure.getThrown());
+                if(failure.didThrow()) {
+                    logger.info(failureMessage, failure.getThrown());
+                } else {
+                    logger.info(failureMessage);
+                }
+            }
+        }
 
-            } else {
-                logger.error(flatten(all));
+        protected void logError(final Operation operation, Failure failure) {
+            operation.terminated();
+            if (logger.isErrorEnabled()) {
+                String failureMessage = buildFailureMessage(operation, failure);
+                
+                if(failure.didThrow()) {
+                    logger.error(failureMessage, failure.getThrown());
+                } else {
+                    logger.error(failureMessage);
+                }
             }
         }
 
@@ -248,11 +279,40 @@ public class Outcome {
         private Object[] buildArgumentArray(final Map<String, Object> formatParameters) {
             return formatParameters.values().toArray(new Object[formatParameters.size()]);
         }
+        
+        private String buildFailureMessage(final Operation operation, Failure failure) {
+            final Map<String, Object> all = new LinkedHashMap<>();
+            addOperation(operation, all);
+            addOutcome(OUTCOME_IS_FAILURE, all);
+            addFailure(failure, all);
+            return flatten(all);
+        }
 
-        private String flatten(final Map<String, Object> formatParameters) {
+        private void addOperation(final Operation operation, final Map<String, Object> msgParams) {
+            msgParams.put("operation", operation.getName());
+            msgParams.putAll(operation.getParameters());
+        }
+
+        private void addOutcome(String outcome, final Map<String, Object> msgParams) {
+            msgParams.put("outcome", outcome);
+        }
+
+        private void addYield(Yield yield, final Map<String, Object> all) {
+            all.putAll(yield.getParameters());
+        }
+
+        private void addFailure(Failure failure, final Map<String, Object> msgParams) {
+            msgParams.putAll(failure.getParameters());
+            
+            if(failure.didThrow()) {
+                msgParams.put("exception",new ToStringWrapper(failure.getThrown().toString()));
+            }
+        }
+
+        private String flatten(final Map<String, Object> msgParameters) {
             final StringBuilder flattened = new StringBuilder();
             int i = 0;
-            for (Map.Entry<String, Object> entry : formatParameters.entrySet()) {
+            for (Map.Entry<String, Object> entry : msgParameters.entrySet()) {
                 if(i > 0) flattened.append(" ");
                 flattened
                         .append(entry.getKey())
