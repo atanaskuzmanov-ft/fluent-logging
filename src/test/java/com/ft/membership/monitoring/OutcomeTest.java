@@ -1,7 +1,5 @@
 package com.ft.membership.monitoring;
 
-import com.ft.membership.domain.UserId;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
+
+import com.ft.membership.common.types.userid.UserId;
 
 import static com.ft.membership.monitoring.Outcome.DomainObjectKey.ErightsGroupId;
 import static com.ft.membership.monitoring.Outcome.DomainObjectKey.ErightsId;

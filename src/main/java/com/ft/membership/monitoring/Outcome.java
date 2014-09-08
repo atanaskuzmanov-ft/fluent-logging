@@ -1,6 +1,6 @@
 package com.ft.membership.monitoring;
 
-import com.ft.membership.domain.UserId;
+import com.ft.membership.common.types.userid.UserId;
 import com.google.common.base.Optional;
 
 import org.slf4j.Logger;

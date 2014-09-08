@@ -2,24 +2,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>user-api-parent</artifactId>
-        <groupId>com.ft</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>user-api-monitoring</artifactId>
+    <parent>
+        <groupId>com.ft.parent</groupId>
+        <artifactId>parentPom</artifactId>
+        <version>2.12</version>
+    </parent>
+
+    <scm>
+        <connection>scm:git:http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</connection>
+        <developerConnection>scm:git:http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</developerConnection>
+        <url>http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</url>
+        <tag>HEAD</tag>
+    </scm>
+    
+    <artifactId>common-monitoring</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    
+    <properties>
+        <jdkVersion>1.7</jdkVersion>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.ft</groupId>
-            <artifactId>user-types</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ft</groupId>
             <artifactId>common-value-types</artifactId>
+            <version>1.17</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -29,17 +38,31 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
+            <version>4.11</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
 
