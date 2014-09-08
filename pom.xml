@@ -12,11 +12,11 @@
         <connection>scm:git:http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</connection>
         <developerConnection>scm:git:http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</developerConnection>
         <url>http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</url>
-        <tag>common-monitoring-1.0</tag>
+        <tag>HEAD</tag>
     </scm>
     
     <artifactId>common-monitoring</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     
     <properties>
         <jdkVersion>1.7</jdkVersion>
