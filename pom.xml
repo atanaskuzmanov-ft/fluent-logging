@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -14,11 +12,11 @@
         <connection>scm:git:http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</connection>
         <developerConnection>scm:git:http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</developerConnection>
         <url>http://MVN-Release:mTRSZkG5E@git.svc.ft.com:8080/scm/om/common-monitoring.git</url>
-        <tag>HEAD</tag>
+        <tag>common-monitoring-1.0</tag>
     </scm>
     
     <artifactId>common-monitoring</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     
     <properties>
         <jdkVersion>1.7</jdkVersion>
