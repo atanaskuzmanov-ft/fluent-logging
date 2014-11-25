@@ -1,5 +1,6 @@
 package com.ft.membership.monitoring;
 
+import com.ft.membership.common.types.userid.UserId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,17 +9,15 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import com.ft.membership.common.types.userid.UserId;
-
-import static com.ft.membership.monitoring.Outcome.DomainObjectKey.ErightsGroupId;
-import static com.ft.membership.monitoring.Outcome.DomainObjectKey.ErightsId;
-import static com.ft.membership.monitoring.Outcome.operation;
+import static com.ft.membership.monitoring.DomainObjectKey.ErightsGroupId;
+import static com.ft.membership.monitoring.DomainObjectKey.ErightsId;
+import static com.ft.membership.monitoring.Operation.operation;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OutcomeTest {
+public class OperationTest {
 
     @Mock
     Logger mockLogger;
@@ -32,7 +31,7 @@ public class OutcomeTest {
     @Test
     public void should_log_simple_success() throws Exception {
 
-        operation("simple_success").wasSuccessful().log(mockLogger);
+        operation("simple_success").started(this).wasSuccessful().log(mockLogger);
 
         verify(mockLogger).info(
                 "operation={} outcome={}",
@@ -44,7 +43,7 @@ public class OutcomeTest {
     public void should_log_success_for_user_id() throws Exception {
 
         final UserId userId = UserId.randomUserId();
-        operation("simple_success").with(userId).wasSuccessful().log(mockLogger);
+        operation("simple_success").with(userId).started(this).wasSuccessful().log(mockLogger);
 
         verify(mockLogger).info(
                 eq("operation={} userId={} outcome={}"),
@@ -62,6 +61,7 @@ public class OutcomeTest {
                 .with(userId)
                 .with("x", 100)
                 .with("y", "that quick brown fox")
+                .started(this)
                 .wasSuccessful()
                 .log(mockLogger);
 
@@ -84,6 +84,7 @@ public class OutcomeTest {
                 .with(userId)
                 .with(ErightsId,1000)
                 .with("y", "that quick brown fox")
+                .started(this)
                 .wasSuccessful()
                 .log(mockLogger);
 
@@ -102,8 +103,9 @@ public class OutcomeTest {
 
         final UserId userId = UserId.randomUserId();
         operation("simple_success")
-                .with(ErightsId,1000)
+                .with(ErightsId, 1000)
                 .with("y", "that quick brown fox")
+                .started(this)
                 .wasSuccessful()
                 .yielding(userId)
                 .yielding(ErightsGroupId, 100)
@@ -124,7 +126,7 @@ public class OutcomeTest {
     @Test
     public void should_log_simple_failure() throws Exception {
 
-        operation("simple_failure").wasFailure().withMessage("boo hoo").log(mockLogger);
+        operation("simple_failure").started(this).wasFailure().withMessage("boo hoo").log(mockLogger);
 
         verify(mockLogger).error(
                 eq("operation=simple_failure outcome=failure errorMessage=\"boo hoo\"")
@@ -136,7 +138,7 @@ public class OutcomeTest {
 
 
         final Exception ex = new RuntimeException("bang!");
-        operation("simple_failure").wasFailure().throwingException(ex).log(mockLogger);
+        operation("simple_failure").started(this).wasFailure().throwingException(ex).log(mockLogger);
 
         verify(mockLogger).error(
                 eq("operation=simple_failure outcome=failure exception=\"java.lang.RuntimeException: bang!\""),
@@ -150,8 +152,9 @@ public class OutcomeTest {
 
         final Exception ex = new RuntimeException("bang!");
         operation("simple_failure")
-                .with("x",101)
+                .with("x", 101)
                 .with("y","bat")
+                .started(this)
                 .wasFailure()
                 .throwingException(ex)
                 .withMessage("got a puncture")
@@ -167,7 +170,8 @@ public class OutcomeTest {
     @Test
     public void should_allow_null_values_for_parameters_and_yields() throws Exception {
         operation("allow_nulls")
-                .with("nullableInput",null)
+                .with("nullableInput", null)
+                .started(this)
                 .wasSuccessful()
                 .yielding("nullableResult",null)
                 .log(mockLogger);
@@ -191,14 +195,14 @@ public class OutcomeTest {
 
     @Test(expected = NullPointerException.class)
     public void should_not_allow_null_values_for_yield_keys() throws Exception {
-        operation("no_null_yield_keys")
+        operation("no_null_yield_keys").started(this)
                 .wasSuccessful().yielding((String) null, "aValue");
 
     }
 
     @Test(expected = NullPointerException.class)
     public void should_not_allow_null_value_for_exception() throws Exception {
-        operation("no_null_yield_keys")
+        operation("no_null_yield_keys").started(this)
                 .wasFailure().throwingException(null).log(mockLogger);
 
     }
@@ -206,7 +210,7 @@ public class OutcomeTest {
     @Test
     public void should_log_error_if_used_in_try_with_resources_and_not_terminated() throws Exception {
 
-        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
+        try(Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
             // do nothing
         }
 
@@ -219,7 +223,7 @@ public class OutcomeTest {
     @Test
     public void should_log_normally_if_used_in_try_with_resources_and_properly_terminated() throws Exception {
 
-        try(Outcome.Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
+        try(Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
             operation.wasSuccessful().log(mockLogger);
         }
 
