@@ -3,9 +3,12 @@ package com.ft.membership.monitoring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.ft.membership.monitoring.LogFormatter.NameAndValue.nameAndValue;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 class LogFormatter {
@@ -24,49 +27,54 @@ class LogFormatter {
     }
 
     public void logInfo(final Operation operation) {
-        final Map<String, Object> all = new LinkedHashMap<>();
-        addOperation(operation, all);
-
-        logger.info(buildFormatString(all), buildArgumentArray(all));
+        final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+        addOperation(operation, msgParams);
+        addOperationParameters(operation, msgParams);
+        if (logger.isInfoEnabled()) {
+            logger.info(buildMsgString(msgParams));
+        }
     }
 
     protected void logInfo(final Operation operation, Yield yield) {
         operation.terminated();
 
-        final Map<String, Object> all = new LinkedHashMap<>();
-        addOperation(operation, all);
-        addOutcome(OUTCOME_IS_SUCCESS, all);
-        addYield(yield, all);
+        final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+        addOperation(operation, msgParams);
+        addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+        addOperationParameters(operation, msgParams);
+        addYield(yield, msgParams);
 
-        logger.info(buildFormatString(all), buildArgumentArray(all));
+        if (logger.isInfoEnabled()) {
+            logger.info(buildMsgString(msgParams));
+        }
     }
 
     protected void logError(final Operation operation, Yield yield) {
         operation.terminated();
 
-        final Map<String, Object> all = new LinkedHashMap<>();
-        addOperation(operation, all);
-        addOutcome(OUTCOME_IS_SUCCESS, all);
-        addYield(yield, all);
+        final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+        addOperation(operation, msgParams);
+        addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+        addOperationParameters(operation, msgParams);
+        addYield(yield, msgParams);
 
-        logger.error(buildFormatString(all), buildArgumentArray(all));
+        if (logger.isErrorEnabled()) {
+            logger.error(buildMsgString(msgParams));
+        }
     }
 
     protected void logInfo(Operation operation, Failure failure) {
         operation.terminated();
+        
         if (logger.isInfoEnabled()) {
             String failureMessage = buildFailureMessage(operation, failure);
-
-            if (failure.didThrow()) {
-                logger.info(failureMessage, failure.getThrown());
-            } else {
-                logger.info(failureMessage);
-            }
+            logger.info(failureMessage);
         }
     }
 
     protected void logError(final Operation operation, Failure failure) {
         operation.terminated();
+        
         if (logger.isErrorEnabled()) {
             String failureMessage = buildFailureMessage(operation, failure);
 
@@ -78,61 +86,85 @@ class LogFormatter {
         }
     }
 
-    private String buildFormatString(final Map<String, Object> formatParameters) {
-        final StringBuilder format = new StringBuilder();
-        int i = formatParameters.size();
-        for (String key : formatParameters.keySet()) {
-            format.append(key).append("={}");
-            i--;
-            if (i > 0) format.append(" ");
-        }
-        return format.toString();
-    }
-
-    private Object[] buildArgumentArray(final Map<String, Object> formatParameters) {
-        return formatParameters.values().toArray(new Object[formatParameters.size()]);
-    }
-
     private String buildFailureMessage(final Operation operation, Failure failure) {
-        final Map<String, Object> all = new LinkedHashMap<>();
-        addOperation(operation, all);
-        addOutcome(OUTCOME_IS_FAILURE, all);
-        addFailure(failure, all);
-        return flatten(all);
+        final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+        addOperation(operation, msgParams);
+        addOutcome(OUTCOME_IS_FAILURE, msgParams);
+        addFailureMessage(failure, msgParams);
+        addOperationParameters(operation, msgParams);
+        addFailureDetails(failure, msgParams);
+        return buildMsgString(msgParams);
+    }
+    
+    private String buildMsgString(final Collection<NameAndValue> msgParams) {
+        final StringBuilder sb = new StringBuilder();
+        boolean addSeperator = false;
+        for (NameAndValue msgParam : msgParams) {
+            if (addSeperator) {
+                sb.append(" ");
+            }
+            sb.append(msgParam);
+            addSeperator = true;
+        }
+        return sb.toString();
+    }
+    
+    private void addOperation(final Operation operation, final Collection<NameAndValue> msgParams) {
+        msgParams.add(nameAndValue("operation", operation.getName()));
     }
 
-    private void addOperation(final Operation operation, final Map<String, Object> msgParams) {
-        msgParams.put("operation", operation.getName());
-        msgParams.putAll(operation.getParameters());
+    private void addOperationParameters(final Operation operation, final Collection<NameAndValue> msgParams) {
+        addParametersAsNamedValues(msgParams, operation.getParameters());
     }
 
-    private void addOutcome(String outcome, final Map<String, Object> msgParams) {
-        msgParams.put("outcome", outcome);
+    private void addOutcome(String outcome, final Collection<NameAndValue> msgParams) {
+        msgParams.add(nameAndValue("outcome", outcome));
     }
 
-    private void addYield(Yield yield, final Map<String, Object> all) {
-        all.putAll(yield.getParameters());
+    private void addYield(Yield yield, final Collection<NameAndValue> msgParams) {
+        addParametersAsNamedValues(msgParams, yield.getParameters());
     }
 
-    private void addFailure(Failure failure, final Map<String, Object> msgParams) {
-        msgParams.putAll(failure.getParameters());
+    private void addParametersAsNamedValues(final Collection<NameAndValue> msgParams, Map<String, Object> parameters) {
+        for (String name : parameters.keySet()) {
+            msgParams.add(nameAndValue(name, parameters.get(name)));
+        }
+    }
+
+    private void addFailureMessage(Failure failure, final Collection<NameAndValue> msgParams) {
+        msgParams.add(nameAndValue("errorMessage", failure.getFailureMessage()));
+    }
+
+    private void addFailureDetails(Failure failure, final Collection<NameAndValue> msgParams) {
+        addParametersAsNamedValues(msgParams, failure.getParameters());
 
         if (failure.didThrow()) {
-            msgParams.put("exception", new ToStringWrapper(failure.getThrown().toString()));
+            msgParams.add(nameAndValue("exception", failure.getThrown().toString()));
         }
     }
 
-    private String flatten(final Map<String, Object> msgParameters) {
-        final StringBuilder flattened = new StringBuilder();
-        int i = 0;
-        for (Map.Entry<String, Object> entry : msgParameters.entrySet()) {
-            if (i > 0) flattened.append(" ");
-            flattened
-                    .append(entry.getKey())
-                    .append("=")
-                    .append(entry.getValue());
-            i++;
+    static class NameAndValue {
+        
+        private String name;
+        private Object value;
+
+        static NameAndValue nameAndValue(String name, Object value) {
+            return new NameAndValue(name, value);
         }
-        return flattened.toString();
+        
+        private NameAndValue(String name, Object value) {
+            this.name = name;
+            this.value = value;
+        }
+        
+        public String toString() {
+            if (value instanceof Number) {
+                return String.format("%s=%d", name, value);
+            } else {
+                return String.format("%s=%s", name, new ToStringWrapper(value).toString());
+            }
+        }
+        
     }
+    
 }

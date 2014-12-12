@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class Failure extends Parameters implements LoggingTerminal {
     private Operation operation;
     private Exception thrown;
+    private String failureMessage;
 
     public Failure(final Operation operation) {
         this.operation = operation;
@@ -12,16 +13,19 @@ public class Failure extends Parameters implements LoggingTerminal {
 
     public Failure throwingException(final Exception e) {
         this.thrown = checkNotNull(e, "require exception");
+        if (failureMessage == null) {
+            withMessage(e.getMessage());
+        }
         return this;
     }
 
     public Failure withMessage(final String message) {
-        putWrapped("errorMessage", message);
+        this.failureMessage = message;
         return this;
     }
 
     public Failure withDetail(final String key, final Object detail) {
-        putWrapped(key, detail);
+        put(key, detail);
         return this;
     }
 
@@ -31,6 +35,10 @@ public class Failure extends Parameters implements LoggingTerminal {
 
     Exception getThrown() {
         return thrown;
+    }
+
+    String getFailureMessage() {
+        return failureMessage;
     }
 
     public void log() {

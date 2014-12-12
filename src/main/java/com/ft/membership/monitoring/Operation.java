@@ -37,7 +37,7 @@ public class Operation implements AutoCloseable {
         }
 
         public OperationBuilder with(final UserId id) {
-            putNoWrap(DomainObjectKey.UserId.getKey(), id);
+            put(DomainObjectKey.UserId.getKey(), id);
             return this;
         }
 
@@ -46,7 +46,7 @@ public class Operation implements AutoCloseable {
         }
 
         public OperationBuilder with(final String key, final Object value) {
-            putWrapped(key, value);
+            put(key, value);
             return this;
         }
 

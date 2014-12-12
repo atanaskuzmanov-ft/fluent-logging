@@ -33,10 +33,7 @@ public class OperationTest {
 
         operation("simple_success").started(this).wasSuccessful().log(mockLogger);
 
-        verify(mockLogger).info(
-                "operation={} outcome={}",
-                new Object[]{"simple_success", "success"});
-
+        verify(mockLogger).info("operation=\"simple_success\" outcome=\"success\"");
     }
 
     @Test
@@ -46,10 +43,7 @@ public class OperationTest {
         operation("simple_success").with(userId).started(this).wasSuccessful().log(mockLogger);
 
         verify(mockLogger).info(
-                eq("operation={} userId={} outcome={}"),
-                eq("simple_success"),
-                eq(userId),
-                eq("success")
+            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\"")
         );
     }
 
@@ -66,12 +60,7 @@ public class OperationTest {
                 .log(mockLogger);
 
         verify(mockLogger).info(
-                eq("operation={} userId={} x={} y={} outcome={}"),
-                eq("simple_success"),
-                eq(userId),
-                eq(100),
-                eq(new ToStringWrapper("that quick brown fox")),
-                eq("success")
+                eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\" x=100 y=\"that quick brown fox\"")
         );
     }
 
@@ -89,12 +78,7 @@ public class OperationTest {
                 .log(mockLogger);
 
         verify(mockLogger).info(
-                eq("operation={} userId={} erightsId={} y={} outcome={}"),
-                eq("simple_success"),
-                eq(userId),
-                eq(1000),
-                eq(new ToStringWrapper("that quick brown fox")),
-                eq("success")
+            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\" erightsId=1000 y=\"that quick brown fox\"")
         );
     }
 
@@ -112,13 +96,7 @@ public class OperationTest {
                 .log(mockLogger);
 
         verify(mockLogger).info(
-                eq("operation={} erightsId={} y={} outcome={} userId={} erightsGroupId={}"),
-                eq("simple_success"),
-                eq(1000),
-                eq(new ToStringWrapper("that quick brown fox")),
-                eq("success"),
-                eq(userId),
-                eq(100)
+            eq("operation=\"simple_success\" outcome=\"success\" erightsId=1000 y=\"that quick brown fox\" userId=\"" + userId + "\" erightsGroupId=100")
         );
     }
 
@@ -129,7 +107,7 @@ public class OperationTest {
         operation("simple_failure").started(this).wasFailure().withMessage("boo hoo").log(mockLogger);
 
         verify(mockLogger).error(
-                eq("operation=simple_failure outcome=failure errorMessage=\"boo hoo\"")
+                eq("operation=\"simple_failure\" outcome=\"failure\" errorMessage=\"boo hoo\"")
                 );
     }
 
@@ -141,14 +119,13 @@ public class OperationTest {
         operation("simple_failure").started(this).wasFailure().throwingException(ex).log(mockLogger);
 
         verify(mockLogger).error(
-                eq("operation=simple_failure outcome=failure exception=\"java.lang.RuntimeException: bang!\""),
+                eq("operation=\"simple_failure\" outcome=\"failure\" errorMessage=\"bang!\" exception=\"java.lang.RuntimeException: bang!\""),
                 eq(ex)
         );
     }
 
     @Test
     public void should_log_failure_with_parameters_and_exception() throws Exception {
-
 
         final Exception ex = new RuntimeException("bang!");
         operation("simple_failure")
@@ -162,7 +139,7 @@ public class OperationTest {
                 .log(mockLogger);
 
         verify(mockLogger).error(
-                eq("operation=simple_failure x=101 y=\"bat\" outcome=failure errorMessage=\"got a puncture\" tyre=\"right\" exception=\"java.lang.RuntimeException: bang!\""),
+                eq("operation=\"simple_failure\" outcome=\"failure\" errorMessage=\"got a puncture\" x=101 y=\"bat\" tyre=\"right\" exception=\"java.lang.RuntimeException: bang!\""),
                 eq(ex)
         );
     }
@@ -177,11 +154,7 @@ public class OperationTest {
                 .log(mockLogger);
 
         verify(mockLogger).info(
-                eq("operation={} nullableInput={} outcome={} nullableResult={}"),
-                eq("allow_nulls"),
-                eq(new ToStringWrapper(null)),
-                eq("success"),
-                eq(new ToStringWrapper(null))
+                eq("operation=\"allow_nulls\" outcome=\"success\" nullableInput=null nullableResult=null")
         );
 
     }
@@ -215,7 +188,7 @@ public class OperationTest {
         }
 
         verify(mockLogger).error(
-                eq("operation=try-with-resources a=5 outcome=failure exception=\"java.lang.RuntimeException: operation auto-closed\""),
+                eq("operation=\"try-with-resources\" outcome=\"failure\" errorMessage=\"operation auto-closed\" a=5 exception=\"java.lang.RuntimeException: operation auto-closed\""),
                 any(RuntimeException.class)
         );
     }
@@ -228,10 +201,7 @@ public class OperationTest {
         }
 
         verify(mockLogger).info(
-                eq("operation={} a={} outcome={}"),
-                eq("try-with-resources"),
-                eq(5),
-                eq("success")
+                eq("operation=\"try-with-resources\" outcome=\"success\" a=5")
         );
     }
 

@@ -10,17 +10,17 @@ public class Yield extends Parameters implements LoggingTerminal {
     }
 
     public Yield yielding(final UserId userId) {
-        putNoWrap("userId", userId);
+        put("userId", userId);
         return this;
     }
 
     public Yield yielding(final String key, final Object value) {
-        putWrapped(key, value);
+        put(key, value);
         return this;
     }
 
     public Yield yielding(final DomainObjectKey key, final Object value) {
-        putWrapped(key.getKey(), value);
+        put(key.getKey(), value);
         return this;
     }
 

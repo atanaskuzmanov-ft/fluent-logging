@@ -8,16 +8,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 class Parameters {
     private Map<String, Object> params = new LinkedHashMap<>();
 
-    protected void putWrapped(String key, Object value) {
-        checkNotNull(key, "require key");
-        if (value instanceof Number) {
-            putNoWrap(key, value);
-        } else {
-            params.put(key, new ToStringWrapper(value));
-        }
-    }
-
-    protected void putNoWrap(String key, Object value) {
+    protected void put(String key, Object value) {
         checkNotNull(key, "require key");
         params.put(key, value);
     }
