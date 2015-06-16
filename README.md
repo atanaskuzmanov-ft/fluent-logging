@@ -65,8 +65,10 @@ slf4j logger instance can be passed.
 
 Maven Artifact
 --------------
+* http://anthill.svc.ft.com:8081/nexus/index.html#nexus-search;quick~common-monitoring
+
     <dependency>
         <groupId>com.ft</groupId>
         <artifactId>common-monitoring</artifactId>
-        <version>1.2</version>
+        <version>1.4</version>
     </dependency>
