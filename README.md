@@ -31,13 +31,13 @@ Fluent splunk-friendly logging with automatic escaping; e.g
                     operation.wasSuccessful().yielding("result","{\"text\": \"hello world\"}").log(this);
                 } else {
                     // report failure
-                    operation.wasFailure().withMessage("no things").log(this);
+                    operation.wasFailure().withMessage("no things").log();
                 }
 
 
             } catch(Exception e) {
                 // report failure
-                operation.wasFailure().throwingException(e).log(this);
+                operation.wasFailure().throwingException(e).log();
             }
         }
     }
@@ -58,7 +58,7 @@ on success, or:
 
 on failure.
 
-The argument passed to the initiating ```started()``` and terminating ```log()``` calls is used to derive the
+The argument passed to the initiating ```started()``` (and, optionally, terminating ```log()```) call is used to derive the
 logger name, and is usually the object which is the orchestrator of an operation. Alternatively, a specific
 slf4j logger instance can be passed.
 
