@@ -62,13 +62,16 @@ The argument passed to the initiating ```started()``` (and, optionally, terminat
 logger name, and is usually the object which is the orchestrator of an operation. Alternatively, a specific
 slf4j logger instance can be passed.
 
+See https://sites.google.com/a/ft.com/technology/systems/membership/logging-conventions for suggested key names.
 
 Maven Artifact
 --------------
 * http://anthill.svc.ft.com:8081/nexus/index.html#nexus-search;quick~common-monitoring
 
-    <dependency>
-        <groupId>com.ft</groupId>
-        <artifactId>common-monitoring</artifactId>
-        <version>1.4</version>
-    </dependency>
+<pre>
+   &lt;dependency>
+       &lt;groupId>com.ft&lt;/groupId>
+       &lt;artifactId>common-monitoring&lt;/artifactId>
+       &lt;version>1.4&lt;/version>
+   &lt;/dependency>
+</pre>
