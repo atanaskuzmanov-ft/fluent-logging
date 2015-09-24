@@ -28,7 +28,7 @@ Fluent splunk-friendly logging with automatic escaping; e.g
 
                 if(something) {
                     // report success
-                    operation.wasSuccessful().yielding("result","{\"text\": \"hello world\"}").log(this);
+                    operation.wasSuccessful().yielding("result","{\"text\": \"hello world\"}").log();
                 } else {
                     // report failure
                     operation.wasFailure().withMessage("no things").log();
