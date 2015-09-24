@@ -62,7 +62,9 @@ The argument passed to the initiating ```started()``` (and, optionally, terminat
 logger name, and is usually the object which is the orchestrator of an operation. Alternatively, a specific
 slf4j logger instance can be passed.
 
-See https://sites.google.com/a/ft.com/technology/systems/membership/logging-conventions for suggested key names.
+Arguments (passed  by ```with()``` and ```yielding()``` etc.) are escaped to allow Splunk to index them, e.g. double quotes are escaped.
+
+See https://sites.google.com/a/ft.com/technology/systems/membership/logging-conventions for suggested argument key names.
 
 Maven Artifact
 --------------
