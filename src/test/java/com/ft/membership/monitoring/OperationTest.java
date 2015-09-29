@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import static com.ft.membership.monitoring.DomainObjectKey.ErightsGroupId;
 import static com.ft.membership.monitoring.DomainObjectKey.ErightsId;
 import static com.ft.membership.monitoring.Operation.operation;
+import static com.ft.membership.monitoring.Operation.resultOperation;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,14 @@ public class OperationTest {
         operation("simple_success").started(this).wasSuccessful().log(mockLogger);
 
         verify(mockLogger).info("operation=\"simple_success\" outcome=\"success\"");
+    }
+
+    @Test
+    public void should_log_simple_success_for_result_operation() throws Exception {
+
+        resultOperation("simple_result_operation").started(this).wasSuccessful().log(mockLogger);
+
+        verify(mockLogger).info("operation=\"simple_result_operation\" outcome=\"success\"");
     }
 
     @Test

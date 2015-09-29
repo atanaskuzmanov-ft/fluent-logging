@@ -20,6 +20,10 @@ public class Operation implements AutoCloseable {
         return new OperationBuilder(operation);
     }
 
+    public static ResultOperationBuilder resultOperation(final String operation) {
+        return new ResultOperationBuilder(operation);
+    }
+
     public Operation(final String operationName, final Object actorOrLogger, final Map<String, Object> parameters) {
         this.operationName = operationName;
         this.actorOrLogger = actorOrLogger;
@@ -54,6 +58,18 @@ public class Operation implements AutoCloseable {
             final Operation operation = new Operation(operationName, actorOrLogger, getParameters());
             new LogFormatter(actorOrLogger).logInfo(operation);
             return operation;
+        }
+    }
+
+    public static class ResultOperationBuilder extends OperationBuilder{
+
+        public ResultOperationBuilder(final String operationName) {
+            super(operationName);
+        }
+
+        @Override
+        public Operation started(final Object actorOrLogger) {
+            return new Operation(super.operationName, actorOrLogger, getParameters());
         }
     }
 

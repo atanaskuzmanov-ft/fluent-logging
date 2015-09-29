@@ -12,6 +12,7 @@ Fluent splunk-friendly logging with automatic escaping; e.g
     import java.util.UUID;
 
     import static com.ft.membership.monitoring.Operation.operation;
+    import static com.ft.membership.monitoring.Operation.resultOperation;
 
     public class Demo {
 
@@ -21,32 +22,48 @@ Fluent splunk-friendly logging with automatic escaping; e.g
 
         protected void run() {
             // report starting conditions
-            final Operation operation = operation("demo").with("id", UUID.randomUUID()).started(this);
+            final Operation operation = operation("operation").with("argument", UUID.randomUUID()).started(this);
+            //result operation does not print out the starting conditions, only success/failures
+            final Operation resultOperation = resultOperation("resultOperation").with("argument", UUID.randomUUID()).started(this);
+
 
             try {
                 // do some things
-
-                if(something) {
-                    // report success
-                    operation.wasSuccessful().yielding("result","{\"text\": \"hello world\"}").log();
-                } else {
-                    // report failure
-                    operation.wasFailure().withMessage("no things").log();
-                }
-
+                int x = 1/0;
+                // report success
+                operation.wasSuccessful().yielding("result","{\"text\": \"hello world\"}").log();
+                resultOperation.wasSuccessful().yielding("result","{\"text\": \"hello world\"}").log();
 
             } catch(Exception e) {
                 // report failure
                 operation.wasFailure().throwingException(e).log();
+                resultOperation.wasFailure().throwingException(e).log();
             }
         }
     }
 
-might log:
+
+Operation might log:
 
     09:42:28.503 [main] INFO  Demo - operation=demo id="bd09f108-2a4d-4e47-8b9f-d20c19c0dad0"
     09:42:28.543 [main] INFO  Demo - operation=demo id="bd09f108-2a4d-4e47-8b9f-d20c19c0dad0" outcome=success result="{\"text\": \"hello world\"}"
 
+
+on success, or:
+
+    10:02:13.484 [main] ERROR Demo - operation=demo id="bd09f108-2a4d-4e47-8b9f-d20c19c0dad0" outcome=failure exception="java.lang.ArithmeticException: / by zero"
+    java.lang.ArithmeticException: / by zero
+        at Demo.run(Demo.java:19) [test-classes/:na]
+        at Demo.main(Demo.java:10) [test-classes/:na]
+        at ...
+
+on failure.
+
+while
+
+Result Operation might log:
+
+    09:42:28.543 [main] INFO  Demo - operation=demo id="bd09f108-2a4d-4e47-8b9f-d20c19c0dad0" outcome=success result="{\"text\": \"hello world\"}"
 
 on success, or:
 
