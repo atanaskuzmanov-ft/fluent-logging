@@ -1,4 +1,4 @@
-package com.ft.membership.monitoring;
+package com.ft.membership.logging;
 
 import com.ft.membership.common.types.userid.UserId;
 import com.google.common.base.Optional;

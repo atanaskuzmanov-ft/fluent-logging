@@ -1,4 +1,4 @@
-package com.ft.membership.monitoring;
+package com.ft.membership.logging;
 
 public enum DomainObjectKey {
     UserId("userId"),

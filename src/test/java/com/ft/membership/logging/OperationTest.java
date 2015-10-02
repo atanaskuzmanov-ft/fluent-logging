@@ -1,4 +1,4 @@
-package com.ft.membership.monitoring;
+package com.ft.membership.logging;
 
 import com.ft.membership.common.types.userid.UserId;
 import org.junit.Before;
@@ -9,10 +9,10 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import static com.ft.membership.monitoring.DomainObjectKey.ErightsGroupId;
-import static com.ft.membership.monitoring.DomainObjectKey.ErightsId;
-import static com.ft.membership.monitoring.Operation.operation;
-import static com.ft.membership.monitoring.Operation.resultOperation;
+import static com.ft.membership.logging.DomainObjectKey.ErightsGroupId;
+import static com.ft.membership.logging.DomainObjectKey.ErightsId;
+import static com.ft.membership.logging.Operation.operation;
+import static com.ft.membership.logging.Operation.resultOperation;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;

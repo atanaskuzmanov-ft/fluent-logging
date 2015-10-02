@@ -1,4 +1,4 @@
-package com.ft.membership.monitoring;
+package com.ft.membership.logging;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

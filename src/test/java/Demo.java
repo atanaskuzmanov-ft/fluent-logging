@@ -1,9 +1,9 @@
-import com.ft.membership.monitoring.Operation;
+import com.ft.membership.logging.Operation;
 
 import java.util.UUID;
 
-import static com.ft.membership.monitoring.Operation.operation;
-import static com.ft.membership.monitoring.Operation.resultOperation;
+import static com.ft.membership.logging.Operation.operation;
+import static com.ft.membership.logging.Operation.resultOperation;
 
 public class Demo {
 

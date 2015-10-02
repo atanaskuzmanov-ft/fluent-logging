@@ -1,14 +1,13 @@
-package com.ft.membership.monitoring;
+package com.ft.membership.logging;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.ft.membership.monitoring.LogFormatter.NameAndValue.nameAndValue;
+import static com.ft.membership.logging.LogFormatter.NameAndValue.nameAndValue;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 class LogFormatter {
