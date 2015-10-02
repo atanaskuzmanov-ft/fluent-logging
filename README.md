@@ -1,18 +1,13 @@
-Common Monitoring
-=================
+Fluent Logging
+==============
 
-Operation
----------
+## Introduction
+Fluent splunk-friendly logging with automatic escaping. Use this library to have a consistent logging format across your
+libraries and applications.
+
+## Using fluent-logging
 
 Fluent splunk-friendly logging with automatic escaping; e.g
-
-
-    import com.ft.membership.monitoring.Operation;
-
-    import java.util.UUID;
-
-    import static com.ft.membership.monitoring.Operation.operation;
-    import static com.ft.membership.monitoring.Operation.resultOperation;
 
     public class Demo {
 
@@ -42,6 +37,7 @@ Fluent splunk-friendly logging with automatic escaping; e.g
         }
     }
 
+Refer [Demo.java](src/test/java/Demo.java) for full source code of an example.
 
 Operation might log:
 
@@ -75,22 +71,34 @@ on success, or:
 
 on failure.
 
-The argument passed to the initiating ```started()``` (and, optionally, terminating ```log()```) call is used to derive the
-logger name, and is usually the object which is the orchestrator of an operation. Alternatively, a specific
-slf4j logger instance can be passed.
+The argument passed to the initiating ```started()``` (and, optionally, terminating ```log()```) call is used to derive 
+the logger name, and is usually the object which is the orchestrator of an operation. Alternatively, a specific slf4j
+logger instance can be passed.
 
-Arguments (passed  by ```with()``` and ```yielding()``` etc.) are escaped to allow Splunk to index them, e.g. double quotes are escaped.
+Arguments (passed  by ```with()``` and ```yielding()``` etc.) are escaped to allow Splunk to index them, e.g. double 
+quotes are escaped.
 
-See https://sites.google.com/a/ft.com/technology/systems/membership/logging-conventions for suggested argument key names.
+See https://sites.google.com/a/ft.com/technology/systems/membership/logging-conventions for suggested argument key 
+names.
 
-Maven Artifact
---------------
-* http://anthill.svc.ft.com:8081/nexus/index.html#nexus-search;quick~common-monitoring
+## Developing fluent-logging
 
-<pre>
-   &lt;dependency>
-       &lt;groupId>com.ft&lt;/groupId>
-       &lt;artifactId>common-monitoring&lt;/artifactId>
-       &lt;version>1.4&lt;/version>
-   &lt;/dependency>
-</pre>
+Pull requests welcome!
+
+> mvn clean verify
+
+### How to release a new version?
+For FT developers, each new commit to `master` is automatically built and pushed to FT's internal Nexus repo.    
+The Jenkins CI job can be found here: [http://ftjen03760-lviw-uk-p:8181/job/fluent-logging/](http://ftjen03760-lviw-uk-p:8181/job/fluent-logging/)
+
+[FT Nexus](http://anthill.svc.ft.com:8081/nexus/index.html#nexus-search;quick~fluent-logging)
+
+
+       <dependency>
+           <groupId>com.ft</groupId>
+           <artifactId>common-monitoring</artifactId>
+           <version>1.4</version>
+       </dependency>
+
+Non-FT developers wishing to use the repo, will have to build and deploy to their local maven repo before manually until
+ [Issue#1](https://github.com/Financial-Times/fluent-logging/issues/1) is resolved.
