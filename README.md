@@ -95,9 +95,9 @@ The Jenkins CI job can be found here: [http://ftjen03760-lviw-uk-p:8181/job/flue
 
 
        <dependency>
-           <groupId>com.ft</groupId>
-           <artifactId>common-monitoring</artifactId>
-           <version>1.4</version>
+           <groupId>com.ft.membership</groupId>
+           <artifactId>fluent-logging</artifactId>
+           <version>2.4.0</version>
        </dependency>
 
 Non-FT developers wishing to use the repo, will have to build and deploy to their local maven repo before manually until
