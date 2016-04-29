@@ -33,7 +33,6 @@ public class Operation implements AutoCloseable {
     public static class OperationBuilder extends Parameters {
 
         private final String operationName;
-        private Object actorOrLogger;
 
         public OperationBuilder( final String operationName){
             checkNotNull(operationName, "require operationName");

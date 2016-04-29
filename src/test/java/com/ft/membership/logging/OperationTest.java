@@ -9,8 +9,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import static com.ft.membership.logging.DomainObjectKey.ErightsGroupId;
-import static com.ft.membership.logging.DomainObjectKey.ErightsId;
 import static com.ft.membership.logging.Operation.operation;
 import static com.ft.membership.logging.Operation.resultOperation;
 import static org.mockito.Matchers.any;
@@ -80,14 +78,13 @@ public class OperationTest {
         final UserId userId = UserId.randomUserId();
         operation("simple_success")
                 .with(userId)
-                .with(ErightsId,1000)
                 .with("y", "that quick brown fox")
                 .started(this)
                 .wasSuccessful()
                 .log(mockLogger);
 
         verify(mockLogger).info(
-            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\" erightsId=1000 y=\"that quick brown fox\"")
+            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\" y=\"that quick brown fox\"")
         );
     }
 
@@ -96,16 +93,14 @@ public class OperationTest {
 
         final UserId userId = UserId.randomUserId();
         operation("simple_success")
-                .with(ErightsId, 1000)
                 .with("y", "that quick brown fox")
                 .started(this)
                 .wasSuccessful()
                 .yielding(userId)
-                .yielding(ErightsGroupId, 100)
                 .log(mockLogger);
 
         verify(mockLogger).info(
-            eq("operation=\"simple_success\" outcome=\"success\" erightsId=1000 y=\"that quick brown fox\" userId=\"" + userId + "\" erightsGroupId=100")
+            eq("operation=\"simple_success\" outcome=\"success\" y=\"that quick brown fox\" userId=\"" + userId + "\"")
         );
     }
 
@@ -192,7 +187,7 @@ public class OperationTest {
     @Test
     public void should_log_error_if_used_in_try_with_resources_and_not_terminated() throws Exception {
 
-        try(Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
+        try(Operation ignored = operation("try-with-resources").with("a", 5).started(mockLogger)) {
             // do nothing
         }
 

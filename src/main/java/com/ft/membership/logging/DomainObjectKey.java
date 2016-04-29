@@ -2,9 +2,7 @@ package com.ft.membership.logging;
 
 public enum DomainObjectKey {
     UserId("userId"),
-    UserEmail("userEmail"),
-    ErightsId("erightsId"),
-    ErightsGroupId("erightsGroupId");
+    UserEmail("email");
 
     private final String key;
 
