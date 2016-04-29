@@ -20,6 +20,7 @@ public final class UserId {
     /**
      * Static factory method for user identities
      * @param id A UUID to be used as the basis for unique user identity.
+     * @return A UserId object corresponding to the param id
      * @throws NullPointerException Thrown when the supplied id is null
      */
     public static UserId userId(UUID id) {
@@ -28,6 +29,7 @@ public final class UserId {
 
     /**
      * Static factory method for generating a random user identity
+     * @return A UserId object with a random uuid
      */
     public static UserId randomUserId() {
         return userId(UUID.randomUUID());
