@@ -1,7 +1,7 @@
 Fluent Logging
 ==============
 
-[![CircleCI](https://circleci.com/gh/Financial-Times/fluent-logging.svg?style=svg&circle-token=2bf1e9c418beb98c7445d741db96e04c54a577aa)](https://circleci.com/gh/Financial-Times/fluent-logging)
+[![CircleCI](https://circleci.com/gh/Financial-Times/fluent-logging.svg?style=svg&circle-token=2bf1e9c418beb98c7445d741db96e04c54a577aa)](https://circleci.com/gh/Financial-Times/fluent-logging) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.ft.membership/fluent-logging/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.ft.membership/fluent-logging)
 
 ## Introduction
 Fluent splunk-friendly logging with automatic escaping. Use this library to have a consistent logging format across your
