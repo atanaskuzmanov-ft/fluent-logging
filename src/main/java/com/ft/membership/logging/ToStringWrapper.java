@@ -1,5 +1,7 @@
 package com.ft.membership.logging;
 
+import java.util.Objects;
+
 public class ToStringWrapper {
     private final Object value;
 
@@ -26,5 +28,10 @@ public class ToStringWrapper {
             return this.value.equals(((ToStringWrapper)obj).value);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
     }
 }

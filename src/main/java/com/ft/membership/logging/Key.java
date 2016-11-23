@@ -1,12 +1,12 @@
 package com.ft.membership.logging;
 
-public enum DomainObjectKey {
+public enum Key {
     UserId("userId"),
     UserEmail("email");
 
     private final String key;
 
-    DomainObjectKey(String key) {
+    Key(String key) {
         this.key = key;
     }
 

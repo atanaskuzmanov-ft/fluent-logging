@@ -3,7 +3,6 @@ import com.ft.membership.logging.Operation;
 import java.util.UUID;
 
 import static com.ft.membership.logging.Operation.operation;
-import static com.ft.membership.logging.Operation.resultOperation;
 
 public class Demo {
 
@@ -15,7 +14,7 @@ public class Demo {
         // report starting conditions
         final Operation operation = operation("operation").with("argument", UUID.randomUUID()).started(this);
         //result operation does not print out the starting conditions, only success/failures
-        final Operation resultOperation = resultOperation("resultOperation").with("argument", UUID.randomUUID()).started(this);
+        final Operation resultOperation = operation("resultOperation").with("argument", UUID.randomUUID()).initiate(this);
 
 
         try {

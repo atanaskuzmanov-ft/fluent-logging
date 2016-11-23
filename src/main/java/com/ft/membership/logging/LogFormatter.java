@@ -16,7 +16,7 @@ class LogFormatter {
 
     private final Logger logger;
 
-    protected LogFormatter(Object actorOrLogger) {
+    LogFormatter(Object actorOrLogger) {
         checkNotNull("require actor or logger");
         if (actorOrLogger instanceof Logger) {
             logger = (Logger) actorOrLogger;
@@ -25,7 +25,7 @@ class LogFormatter {
         }
     }
 
-    public void logInfo(final Operation operation) {
+    void logStart(final Operation operation) {
         final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
         addOperation(operation, msgParams);
         addOperationParameters(operation, msgParams);
@@ -34,7 +34,7 @@ class LogFormatter {
         }
     }
 
-    protected void logInfo(final Operation operation, Yield yield) {
+    void logInfo(final Operation operation, Yield yield) {
         operation.terminated();
 
         final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
@@ -48,7 +48,7 @@ class LogFormatter {
         }
     }
 
-    protected void logError(final Operation operation, Yield yield) {
+    void logDebug(Operation operation, Yield yield) {
         operation.terminated();
 
         final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
@@ -57,12 +57,12 @@ class LogFormatter {
         addOperationParameters(operation, msgParams);
         addYield(yield, msgParams);
 
-        if (logger.isErrorEnabled()) {
-            logger.error(buildMsgString(msgParams));
+        if (logger.isDebugEnabled()) {
+            logger.debug(buildMsgString(msgParams));
         }
     }
 
-    protected void logInfo(Operation operation, Failure failure) {
+    void logInfo(Operation operation, Failure failure) {
         operation.terminated();
         
         if (logger.isInfoEnabled()) {
@@ -71,7 +71,16 @@ class LogFormatter {
         }
     }
 
-    protected void logError(final Operation operation, Failure failure) {
+    void logWarn(Operation operation, Failure failure) {
+        operation.terminated();
+
+        if (logger.isWarnEnabled()) {
+            String failureMessage = buildFailureMessage(operation, failure);
+            logger.warn(failureMessage);
+        }
+    }
+
+    void logError(final Operation operation, Failure failure) {
         operation.terminated();
         
         if (logger.isErrorEnabled()) {
@@ -157,7 +166,7 @@ class LogFormatter {
         }
         
         public String toString() {
-            if (value instanceof Number) {
+            if (value instanceof Integer || value instanceof Long) {
                 return String.format("%s=%d", name, value);
             } else {
                 return String.format("%s=%s", name, new ToStringWrapper(value).toString());

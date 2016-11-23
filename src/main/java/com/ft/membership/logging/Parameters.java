@@ -13,6 +13,10 @@ class Parameters {
         params.put(key, value);
     }
 
+    protected void put(final Key key, final Object detail) {
+        put(key.getKey(), detail);
+    }
+
     protected Map<String, Object> getParameters() {
         return params;
     }
