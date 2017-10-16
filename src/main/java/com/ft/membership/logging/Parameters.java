@@ -17,6 +17,10 @@ class Parameters {
         put(key.getKey(), detail);
     }
 
+    protected void putAll(final Map<String, Object> keyValues) {
+        params.putAll(keyValues);
+    }
+
     protected Map<String, Object> getParameters() {
         return params;
     }

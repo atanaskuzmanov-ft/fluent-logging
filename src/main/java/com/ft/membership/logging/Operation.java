@@ -105,6 +105,16 @@ public class Operation implements AutoCloseable {
         }
 
         /**
+         * add starting parameters from entries in a map.
+         * @param keyValues a map of parameter key-values
+         * @return Operation
+         */
+        public OperationBuilder with(final Map<String, Object> keyValues) {
+            putAll(keyValues);
+            return this;
+        }
+
+        /**
          * mark the start of an operation, logging starting parameters at <tt>INFO</tt> level.
          * @param actorOrLogger object for logging context; may be an instance of {@link org.slf4j.Logger},
          *                      in which case that logger will be used for logging, or an object in which case
@@ -167,7 +177,7 @@ public class Operation implements AutoCloseable {
     public void close() {
         if (!terminated) {
             this.wasFailure()
-                    .throwingException(new RuntimeException("operation auto-closed")) // so we at least get a stack-trace
+                    .throwingException(new IllegalStateException("Programmer error: operation auto-closed before wasSuccessful() or wasFailure() called.")) // so we at least get a stack-trace
                     .log(Optional.ofNullable(actorOrLogger).orElse(this));
         }
     }

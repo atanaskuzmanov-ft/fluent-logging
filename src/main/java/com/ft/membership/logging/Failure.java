@@ -72,6 +72,16 @@ public class Failure extends Parameters implements LoggingTerminal {
     }
 
     /**
+     * add all key-values from a map as detail of the failure.
+     * @param keyValues a map
+     * @return the Failure
+     */
+    public Failure withDetail(final Map<String, Object> keyValues) {
+        putAll(keyValues);
+        return this;
+    }
+
+    /**
      * log this failure with an <tt>ERROR</tt> log-level, using the log context passed when starting the operation.
      */
     public void log() {

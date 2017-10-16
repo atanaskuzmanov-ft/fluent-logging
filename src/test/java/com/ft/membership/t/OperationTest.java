@@ -11,6 +11,8 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.ft.membership.logging.Operation.operation;
@@ -27,6 +29,7 @@ public class OperationTest {
     public void setup() {
         Mockito.when(mockLogger.isInfoEnabled()).thenReturn(true);
         Mockito.when(mockLogger.isErrorEnabled()).thenReturn(true);
+        Mockito.when(mockLogger.isDebugEnabled()).thenReturn(true);
     }
     
     @Test
@@ -54,15 +57,24 @@ public class OperationTest {
     public void log_success_with_start_params() throws Exception {
 
         final UUID userId = UUID.randomUUID();
+        final Map<String, Object> mapOfParams  = new HashMap<>();
+        mapOfParams.put("beta", "b");
+        mapOfParams.put("zeta", "z");
+
         operation("simple_success")
                 .with(Key.UserId, userId)
                 .with("y", "that quick brown fox")
+                .with(mapOfParams)
                 .started(mockLogger)
                 .wasSuccessful()
                 .log();
 
         verify(mockLogger).info(
-            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\" y=\"that quick brown fox\"")
+                eq("operation=\"simple_success\" userId=\"" + userId + "\" y=\"that quick brown fox\" zeta=\"z\" beta=\"b\"")
+        );
+
+        verify(mockLogger).info(
+            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\" y=\"that quick brown fox\" zeta=\"z\" beta=\"b\"")
         );
     }
 
@@ -78,6 +90,10 @@ public class OperationTest {
                 .log();
 
         verify(mockLogger).info(
+                eq("operation=\"simple_success\" y=\"that quick brown fox\"")
+        );
+
+        verify(mockLogger).info(
             eq("operation=\"simple_success\" outcome=\"success\" y=\"that quick brown fox\" email=\"" + email + "\"")
         );
     }
@@ -86,15 +102,25 @@ public class OperationTest {
     public void log_success_with_kv_yield() throws Exception {
 
         String email = "user@test.com";
+
+        Map<String, Object> mapOfValues = new HashMap<>();
+        mapOfValues.put("kappa", "k");
+        mapOfValues.put("delta", "d");
+
         operation("simple_success")
                 .with("y", "that quick brown fox")
                 .started(mockLogger)
                 .wasSuccessful()
                 .yielding("userEmail", email)
+                .yielding(mapOfValues)
                 .log();
 
         verify(mockLogger).info(
-                eq("operation=\"simple_success\" outcome=\"success\" y=\"that quick brown fox\" userEmail=\"" + email + "\"")
+                eq("operation=\"simple_success\" y=\"that quick brown fox\"")
+        );
+
+        verify(mockLogger).info(
+                eq("operation=\"simple_success\" outcome=\"success\" y=\"that quick brown fox\" userEmail=\"" + email + "\" delta=\"d\" kappa=\"k\"")
         );
     }
 
@@ -195,7 +221,7 @@ public class OperationTest {
         }
 
         verify(mockLogger).error(
-                eq("operation=\"try-with-resources\" outcome=\"failure\" errorMessage=\"operation auto-closed\" a=5 exception=\"java.lang.RuntimeException: operation auto-closed\""),
+                eq("operation=\"try-with-resources\" outcome=\"failure\" errorMessage=\"Programmer error: operation auto-closed before wasSuccessful() or wasFailure() called.\" a=5 exception=\"java.lang.IllegalStateException: Programmer error: operation auto-closed before wasSuccessful() or wasFailure() called.\""),
                 any(RuntimeException.class)
         );
     }

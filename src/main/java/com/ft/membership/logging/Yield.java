@@ -1,5 +1,7 @@
 package com.ft.membership.logging;
 
+import java.util.Map;
+
 public class Yield extends Parameters implements LoggingTerminal {
     private final Operation operation;
 
@@ -26,6 +28,16 @@ public class Yield extends Parameters implements LoggingTerminal {
      */
     public Yield yielding(final Key key, final Object value) {
         put(key, value);
+        return this;
+    }
+
+    /**
+     * add all key-values from a map to the yield.
+     * @param keyValues a map of key-values.
+     * @return the Yield
+     */
+    public Yield yielding(final Map<String, Object> keyValues) {
+        putAll(keyValues);
         return this;
     }
 
