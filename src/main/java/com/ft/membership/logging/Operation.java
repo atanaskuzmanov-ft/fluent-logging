@@ -3,7 +3,7 @@ package com.ft.membership.logging;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.ft.membership.logging.Preconditions.checkNotNull;
 
 /**
  * An Operation is a logging context with starting parameters, which either succeeds or fails, supporting additional

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static com.ft.membership.logging.LogFormatter.NameAndValue.nameAndValue;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.ft.membership.logging.Preconditions.checkNotNull;
 
 class LogFormatter {
     private static final String OUTCOME_IS_SUCCESS = "success";

@@ -1,6 +1,8 @@
 package com.ft.membership.logging;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Map;
+
+import static com.ft.membership.logging.Preconditions.checkNotNull;
 
 public class Failure extends Parameters implements LoggingTerminal {
 

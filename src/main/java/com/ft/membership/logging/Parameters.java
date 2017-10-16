@@ -3,7 +3,7 @@ package com.ft.membership.logging;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.ft.membership.logging.Preconditions.checkNotNull;
 
 class Parameters {
     private Map<String, Object> params = new LinkedHashMap<>();
