@@ -37,13 +37,13 @@ class LogFormatter {
     void logInfo(final Operation operation, Yield yield) {
         operation.terminated();
 
-        final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
-        addOperation(operation, msgParams);
-        addOutcome(OUTCOME_IS_SUCCESS, msgParams);
-        addOperationParameters(operation, msgParams);
-        addYield(yield, msgParams);
-
         if (logger.isInfoEnabled()) {
+            final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+            addOperation(operation, msgParams);
+            addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+            addOperationParameters(operation, msgParams);
+            addYield(yield, msgParams);
+
             logger.info(buildMsgString(msgParams));
         }
     }
@@ -51,13 +51,13 @@ class LogFormatter {
     void logDebug(Operation operation, Yield yield) {
         operation.terminated();
 
-        final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
-        addOperation(operation, msgParams);
-        addOutcome(OUTCOME_IS_SUCCESS, msgParams);
-        addOperationParameters(operation, msgParams);
-        addYield(yield, msgParams);
-
         if (logger.isDebugEnabled()) {
+            final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+            addOperation(operation, msgParams);
+            addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+            addOperationParameters(operation, msgParams);
+            addYield(yield, msgParams);
+
             logger.debug(buildMsgString(msgParams));
         }
     }
