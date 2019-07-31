@@ -61,10 +61,10 @@ public class Yield extends Parameters implements LoggingTerminal {
      * @param actorOrLogger logger or object for log context
      */
     public void logDebug(Object actorOrLogger) {
-        new LogFormatter(actorOrLogger).logDebug(operation, this);
+        new LogFormatter(actorOrLogger).logDebug(operation, this, true);
     }
-
+    
     private void logInfo(Object actorOrLogger) {
-        new LogFormatter(actorOrLogger).logInfo(operation, this);
+        new LogFormatter(actorOrLogger).logInfo(operation, this, true);
     }
 }

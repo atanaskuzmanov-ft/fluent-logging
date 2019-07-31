@@ -1,9 +1,9 @@
 package com.ft.membership.logging;
 
+import static com.ft.membership.logging.Preconditions.checkNotNull;
+
 import java.util.Map;
 import java.util.Optional;
-
-import static com.ft.membership.logging.Preconditions.checkNotNull;
 
 /**
  * An Operation is a logging context with starting parameters, which either succeeds or fails, supporting additional
@@ -157,6 +157,32 @@ public class Operation implements AutoCloseable {
         return new Failure(this);
     }
 
+    /**
+     * log something before closing the operation with {@link #wasSuccessful()} or {@link #wasFailure()}
+     * <p>e.g.</p>
+     *
+     * <pre>
+     *     Operation operation = Operation.operation("launch").started(this);
+     *
+     *     operation.logIntermediate("action", "checkEngine").log();
+     *     checkEngine();
+     *
+     *     Flight f = probe.launch();
+     *
+     *     operation.wasSuccessful().log();
+     * </pre>
+     * On success, this would log something like:
+     * <pre>
+     *     INFO operation="launch"
+     *     INFO operation="launch" action="checkEngine"
+     *     ...
+     *     INFO operation="launch" outcome="success"
+     * </pre>
+     */
+    public IntermediateYield logIntermediate() {
+        return new IntermediateYield(this);
+    }
+    
     void terminated() {
         this.terminated = true;
     }
@@ -181,5 +207,5 @@ public class Operation implements AutoCloseable {
                     .log(Optional.ofNullable(actorOrLogger).orElse(this));
         }
     }
-
+    
 }

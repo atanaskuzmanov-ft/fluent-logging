@@ -1,3 +1,7 @@
+#3.1.1
+
+* Allow intermediate logs for a given Operation
+
 # 3.1.0
 
 * Add methods to add all key-values from a map to parameters and yields.

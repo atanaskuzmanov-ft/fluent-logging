@@ -1,7 +1,17 @@
 package com.ft.membership.t;
 
+import static com.ft.membership.logging.Operation.operation;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import com.ft.membership.logging.Key;
 import com.ft.membership.logging.Operation;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -10,14 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import static com.ft.membership.logging.Operation.operation;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OperationTest {
@@ -30,6 +32,7 @@ public class OperationTest {
         Mockito.when(mockLogger.isInfoEnabled()).thenReturn(true);
         Mockito.when(mockLogger.isErrorEnabled()).thenReturn(true);
         Mockito.when(mockLogger.isDebugEnabled()).thenReturn(true);
+        Mockito.when(mockLogger.isWarnEnabled()).thenReturn(true);
     }
     
     @Test
@@ -237,7 +240,50 @@ public class OperationTest {
                 eq("operation=\"try-with-resources\" outcome=\"success\" a=5")
         );
     }
+    
+    @Test
+    public void testOperationMidTermYield() {
+        String action = "testAction";
 
+        Map<String, Object> mapOfValues = new HashMap<>();
+        mapOfValues.put("kappa", "k");
+        mapOfValues.put("delta", "d");
+
+        Operation operation = operation("testOperation")
+            .started(mockLogger);
+
+        operation.logIntermediate().yielding("action", action).log();
+        
+        operation.wasSuccessful().log();
+        
+        verify(mockLogger).info(
+            eq("operation=\"testOperation\"")
+        );
+        
+        verify(mockLogger).info(
+            eq("operation=\"testOperation\" action=\"testAction\"")
+        );
+
+        verify(mockLogger).info(
+            eq("operation=\"testOperation\" outcome=\"success\"")
+        );
+    }
+
+    @Test
+    public void testOperationMidTermYieldWithMapOfValues() {
+        Operation operation = operation("testOperation")
+            .started(mockLogger);
+
+        Map<String, Object> mapOfValues = new HashMap<>();
+        mapOfValues.put("action", "testAction");
+        mapOfValues.put("numOfRows", 10);
+        
+        operation.logIntermediate().yielding(mapOfValues).logDebug();
+
+        verify(mockLogger)
+            .debug(eq("operation=\"testOperation\" action=\"testAction\" numOfRows=10"));
+    }
+    
     @Test
     @Ignore("For documentation only")
     public void documentation() throws Exception {

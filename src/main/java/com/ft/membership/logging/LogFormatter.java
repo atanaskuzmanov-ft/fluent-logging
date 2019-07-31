@@ -1,14 +1,13 @@
 package com.ft.membership.logging;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.ft.membership.logging.LogFormatter.NameAndValue.nameAndValue;
+import static com.ft.membership.logging.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-
-import static com.ft.membership.logging.LogFormatter.NameAndValue.nameAndValue;
-import static com.ft.membership.logging.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class LogFormatter {
     private static final String OUTCOME_IS_SUCCESS = "success";
@@ -17,7 +16,7 @@ class LogFormatter {
     private final Logger logger;
 
     LogFormatter(Object actorOrLogger) {
-        checkNotNull("require actor or logger");
+        checkNotNull(actorOrLogger,"require actor or logger");
         if (actorOrLogger instanceof Logger) {
             logger = (Logger) actorOrLogger;
         } else {
@@ -34,13 +33,17 @@ class LogFormatter {
         }
     }
 
-    void logInfo(final Operation operation, Yield yield) {
-        operation.terminated();
+    void logInfo(final Operation operation, Yield yield, boolean terminateOperation) {
+        if (terminateOperation) {
+            operation.terminated();
+        }
 
         if (logger.isInfoEnabled()) {
             final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
             addOperation(operation, msgParams);
-            addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+            if (terminateOperation) {
+                addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+            }
             addOperationParameters(operation, msgParams);
             addYield(yield, msgParams);
 
@@ -48,13 +51,17 @@ class LogFormatter {
         }
     }
 
-    void logDebug(Operation operation, Yield yield) {
-        operation.terminated();
+    void logDebug(Operation operation, Yield yield, boolean terminateOperation) {
+        if (terminateOperation) {
+            operation.terminated();
+        }
 
         if (logger.isDebugEnabled()) {
             final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
             addOperation(operation, msgParams);
-            addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+            if (terminateOperation) {
+              addOutcome(OUTCOME_IS_SUCCESS, msgParams);
+            }
             addOperationParameters(operation, msgParams);
             addYield(yield, msgParams);
 
@@ -62,8 +69,10 @@ class LogFormatter {
         }
     }
 
-    void logInfo(Operation operation, Failure failure) {
-        operation.terminated();
+    void logInfo(Operation operation, Failure failure, boolean terminateOperation) {
+        if (terminateOperation) {
+            operation.terminated();
+        }
         
         if (logger.isInfoEnabled()) {
             String failureMessage = buildFailureMessage(operation, failure);
@@ -71,8 +80,10 @@ class LogFormatter {
         }
     }
 
-    void logWarn(Operation operation, Failure failure) {
-        operation.terminated();
+    void logWarn(Operation operation, Failure failure, boolean terminateOperation) {
+        if (terminateOperation) {
+            operation.terminated();
+        }
 
         if (logger.isWarnEnabled()) {
             String failureMessage = buildFailureMessage(operation, failure);
@@ -80,8 +91,24 @@ class LogFormatter {
         }
     }
 
-    void logError(final Operation operation, Failure failure) {
-        operation.terminated();
+    void logWarn(Operation operation, Yield yield, boolean terminateOperation) {
+        if (terminateOperation) {
+            operation.terminated();
+        }
+
+        if (logger.isWarnEnabled()) {
+            final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+            addOperation(operation, msgParams);
+            addYield(yield, msgParams);
+
+            logger.warn(buildMsgString(msgParams));
+        }
+    }
+
+    void logError(final Operation operation, Failure failure, boolean terminateOperation) {
+        if (terminateOperation) {
+          operation.terminated();
+        }
         
         if (logger.isErrorEnabled()) {
             String failureMessage = buildFailureMessage(operation, failure);
@@ -94,8 +121,23 @@ class LogFormatter {
         }
     }
 
+
+    void logError(Operation operation, Yield yield, boolean terminateOperation) {
+        if (terminateOperation) {
+            operation.terminated();
+        }
+
+        if (logger.isErrorEnabled()) {
+            final Collection<NameAndValue> msgParams = new ArrayList<>();
+            addOperation(operation, msgParams);
+            addYield(yield, msgParams);
+
+            logger.error(buildMsgString(msgParams));
+        }
+    }
+    
     private String buildFailureMessage(final Operation operation, Failure failure) {
-        final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+        final Collection<NameAndValue> msgParams = new ArrayList<>();
         addOperation(operation, msgParams);
         addOutcome(OUTCOME_IS_FAILURE, msgParams);
         addFailureMessage(failure, msgParams);
