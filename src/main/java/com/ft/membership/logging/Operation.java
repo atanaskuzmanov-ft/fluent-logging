@@ -57,7 +57,7 @@ public class Operation implements AutoCloseable {
 
     private boolean terminated;
 
-    private Map<String, Object> parameters;
+    private Parameters parameters;
 
     /**
      * create an Operation, ready for decoration with parameters.
@@ -71,7 +71,7 @@ public class Operation implements AutoCloseable {
     public Operation(final String operationName, final Object actorOrLogger, final Map<String, Object> parameters) {
         this.operationName = operationName;
         this.actorOrLogger = actorOrLogger;
-        this.parameters = parameters;
+        this.parameters = new Parameters(parameters);
     }
 
     public static class OperationBuilder extends Parameters {
@@ -166,8 +166,42 @@ public class Operation implements AutoCloseable {
     }
 
     Map<String, Object> getParameters() {
-        return parameters;
+        return parameters.getParameters();
     }
+
+    /**
+     * add a key-value detail to the operation. It will be logged when the operation ends.
+     * @param key a key
+     * @param value a value
+     * @return the Operation
+     */
+    public Operation withDetail(final String key, final Object value) {
+        parameters.put(key, value);
+
+        return this;
+    }
+
+    /**
+     * add a key-value detail to the operation. It will be logged when the operation ends.
+     * @param key a key
+     * @param value a value
+     * @return the Operation
+     */
+    public Operation withDetail(final Key key, final Object value) {
+        parameters.put(key, value);
+        return this;
+    }
+
+    /**
+     * add all key-values from a map as detail of the operation.
+     * @param keyValues a map
+     * @return the Operation
+     */
+    public Operation withDetail(final Map<String, Object> keyValues) {
+        parameters.putAll(keyValues);
+        return this;
+    }
+
 
     Object getActorOrLogger() {
         return actorOrLogger;

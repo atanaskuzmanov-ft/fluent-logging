@@ -79,6 +79,51 @@ public class OperationTest {
     }
 
     @Test
+    public void log_success_with_details() throws Exception {
+
+        final UUID userId = UUID.randomUUID();
+
+        final Map<String, Object> mapOfParams  = new HashMap<>();
+        mapOfParams.put("beta", "b");
+        mapOfParams.put("zeta", "z");
+
+        final Operation operation = operation("simple_success").started(mockLogger);
+
+        operation.withDetail(Key.UserId, userId).withDetail(mapOfParams);
+        operation.withDetail("alpha", "a");
+
+        operation.wasSuccessful().log();
+
+        verify(mockLogger).info(
+            eq("operation=\"simple_success\"")
+        );
+
+        verify(mockLogger).info(
+            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\" zeta=\"z\" beta=\"b\" alpha=\"a\"")
+        );
+    }
+
+    @Test
+    public void log_success_with_multiple_details() throws Exception {
+
+        final UUID userId = UUID.randomUUID();
+
+        final Operation operation = operation("simple_success").started(mockLogger);
+
+        operation.withDetail(Key.UserId, userId);
+
+        operation.wasSuccessful().log();
+
+        verify(mockLogger).info(
+            eq("operation=\"simple_success\"")
+        );
+
+        verify(mockLogger).info(
+            eq("operation=\"simple_success\" outcome=\"success\" userId=\"" + userId + "\"")
+        );
+    }
+
+    @Test
     public void log_success_with_key_yield() throws Exception {
 
         String email = "user@test.com";

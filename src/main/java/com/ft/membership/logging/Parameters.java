@@ -8,6 +8,12 @@ import static com.ft.membership.logging.Preconditions.checkNotNull;
 class Parameters {
     private Map<String, Object> params = new LinkedHashMap<>();
 
+    Parameters() { }
+
+    Parameters(final Map<String, Object> keyValues) {
+        putAll(keyValues);
+    }
+
     protected void put(String key, Object value) {
         checkNotNull(key, "require key");
         params.put(key, value);
