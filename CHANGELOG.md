@@ -1,3 +1,7 @@
+# 3.1.1
+* Add `withDetail` methods to the `Operation` class. This allows adding results to the outcome log no matter if the log was successful or failure. In previous versions you had to add this in both cases.  
+
+
 # 3.1.0
 
 * Add methods to add all key-values from a map to parameters and yields.

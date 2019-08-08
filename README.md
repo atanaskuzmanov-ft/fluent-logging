@@ -11,6 +11,7 @@ libraries and applications.
 
 Fluent splunk-friendly logging with automatic escaping; e.g
 
+```
     public class Demo {
 
         public static void main(String[] args) {
@@ -33,32 +34,58 @@ Fluent splunk-friendly logging with automatic escaping; e.g
             }
         }
     }
+```
 
 Refer [Demo.java](src/test/java/Demo.java) for full source code of an example.
 
 Operation might log:
 
+```
     09:42:28.503 [main] INFO  Demo - operation=demo id="bd09f108-2a4d-4e47-8b9f-d20c19c0dad0"
     09:42:28.543 [main] INFO  Demo - operation=demo id="bd09f108-2a4d-4e47-8b9f-d20c19c0dad0" outcome=success result="{\"text\": \"hello world\"}"
-
+```
 
 on success, or:
 
+```
     10:02:13.484 [main] ERROR Demo - operation=demo id="bd09f108-2a4d-4e47-8b9f-d20c19c0dad0" outcome=failure exception="java.lang.ArithmeticException: / by zero"
     java.lang.ArithmeticException: / by zero
         at Demo.run(Demo.java:19) [test-classes/:na]
         at Demo.main(Demo.java:10) [test-classes/:na]
         at ...
-
+```
 on failure.
 
-The argument passed to the ```started()``` (and, optionally, terminating ```log()```) method is used to derive 
+The argument passed to the `started()` (and, optionally, terminating `log()`) method is used to derive 
 the logger name, and is usually the object which is the orchestrator of an operation. Alternatively, a specific `slf4j`
 logger instance can be passed.
 
-Arguments (passed  by ```with()``` and ```yielding()``` etc.) are escaped to allow Splunk to index them, e.g. double 
+Arguments (passed  by `with()` and `yielding()` etc.) are escaped to allow Splunk to index them, e.g. double 
 quotes are escaped.
 
 See https://sites.google.com/a/ft.com/technology/systems/membership/logging-conventions for suggested argument key 
 names.
+
+### Adding details to the operation
+
+In this example of the `operation.withDetail` method we have the `paymentConfirmation` logged both on success or failure logs
+
+```
+void subscribeUser(final UserId userId, final ProductId productId) {
+   final Operation operation = operation("operation")
+       .with("userId", userId)
+       .with("productId", productId)
+       .started(this);
+   
+   final PaymentConfirmation paymentConfirmation = confirmPayment(userId);
+   operation.withDetail("paymentConfirmation", paymentConfirmation);
+
+	try {
+		final UserProduct userProduct = addUserProduct(userId, productId);
+		operation.wasSuccessful().yielding("userProduct", userProduct).log();
+    } catch(Exception e) {
+       operation.wasFailure().throwingException(e).log();
+    }
+}
+```
 
