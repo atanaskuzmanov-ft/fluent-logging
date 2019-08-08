@@ -177,7 +177,6 @@ public class Operation implements AutoCloseable {
      */
     public Operation withDetail(final String key, final Object value) {
         parameters.put(key, value);
-
         return this;
     }
 
@@ -201,7 +200,6 @@ public class Operation implements AutoCloseable {
         parameters.putAll(keyValues);
         return this;
     }
-
 
     Object getActorOrLogger() {
         return actorOrLogger;

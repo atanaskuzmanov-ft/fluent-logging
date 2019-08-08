@@ -34,7 +34,6 @@ public class OperationTest {
     
     @Test
     public void log_start_and_success() throws Exception {
-
         operation("simple_success").started(mockLogger).wasSuccessful().log();
 
         verify(mockLogger,times(2)).isInfoEnabled();
@@ -45,7 +44,6 @@ public class OperationTest {
 
     @Test
     public void only_log_success_for_initiated_operation() throws Exception {
-
         operation("simple_result_operation").initiate(mockLogger).wasSuccessful().log();
 
         verify(mockLogger,times(1)).isInfoEnabled();
@@ -55,7 +53,6 @@ public class OperationTest {
 
     @Test
     public void log_success_with_start_params() throws Exception {
-
         final UUID userId = UUID.randomUUID();
         final Map<String, Object> mapOfParams  = new HashMap<>();
         mapOfParams.put("beta", "b");
@@ -105,7 +102,6 @@ public class OperationTest {
 
     @Test
     public void log_success_with_multiple_details() throws Exception {
-
         final UUID userId = UUID.randomUUID();
 
         final Operation operation = operation("simple_success").started(mockLogger);
@@ -125,7 +121,6 @@ public class OperationTest {
 
     @Test
     public void log_success_with_key_yield() throws Exception {
-
         String email = "user@test.com";
         operation("simple_success")
                 .with("y", "that quick brown fox")
@@ -145,7 +140,6 @@ public class OperationTest {
 
     @Test
     public void log_success_with_kv_yield() throws Exception {
-
         String email = "user@test.com";
 
         Map<String, Object> mapOfValues = new HashMap<>();
@@ -171,7 +165,6 @@ public class OperationTest {
 
     @Test
     public void log_simple_failure() throws Exception {
-
         operation("simple_failure").started(mockLogger).wasFailure().withMessage("boo hoo").log();
 
         verify(mockLogger).error(
@@ -181,7 +174,6 @@ public class OperationTest {
 
     @Test
     public void log_failure_with_exception() throws Exception {
-
         final Exception ex = new RuntimeException("bang!");
         operation("simple_failure").started(mockLogger).wasFailure().throwingException(ex).log();
 
@@ -193,7 +185,6 @@ public class OperationTest {
 
     @Test
     public void log_failure_with_quiet_exception() throws Exception {
-
         final Exception ex = new RuntimeException("bang!");
         operation("simple_failure").started(mockLogger).wasFailure().withMessage(ex).log();
 
@@ -204,7 +195,6 @@ public class OperationTest {
 
     @Test
     public void log_failure_with_parameters_and_exception() throws Exception {
-
         final Exception ex = new RuntimeException("bang!");
         operation("simple_failure")
                 .with("x", 101)
@@ -260,7 +250,6 @@ public class OperationTest {
 
     @Test
     public void log_error_if_used_in_try_with_resources_and_not_terminated() throws Exception {
-
         try(Operation ignored = operation("try-with-resources").with("a", 5).started(mockLogger)) {
             // do nothing
         }
@@ -273,7 +262,6 @@ public class OperationTest {
 
     @Test
     public void log_normally_if_used_in_try_with_resources_and_properly_terminated() throws Exception {
-
         try(Operation operation = operation("try-with-resources").with("a", 5).started(mockLogger)) {
             operation.wasSuccessful().log();
         }
