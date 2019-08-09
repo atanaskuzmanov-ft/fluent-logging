@@ -37,7 +37,11 @@ class LogFormatter {
 
   void logStart(final CompoundOperation operation) {
     final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
-    addOperation(operation, msgParams);
+    if (operation.isAction()) {
+      addAction(operation, msgParams);
+    } else {
+      addOperation(operation, msgParams);
+    }
     addOperationParameters(operation, msgParams);
     if (logger.isInfoEnabled()) {
       logger.info(buildMsgString(msgParams));
@@ -50,7 +54,11 @@ class LogFormatter {
 
   void log(final CompoundOperation operation, final Outcome outcome, final Level logLevel) {
     final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
-    addOperation(operation, msgParams);
+    if (operation.isAction()) {
+      addAction(operation, msgParams);
+    } else {
+      addOperation(operation, msgParams);
+    }
     if (outcome != null) {
       addOutcome(outcome.getKey(), msgParams);
     }
@@ -179,6 +187,11 @@ class LogFormatter {
   private void addOperation(final CompoundOperation operation,
       final Collection<NameAndValue> msgParams) {
     msgParams.add(nameAndValue("operation", operation.getName()));
+  }
+
+  private void addAction(final CompoundOperation operation,
+      final Collection<NameAndValue> msgParams) {
+    msgParams.add(nameAndValue("action", operation.getName()));
   }
 
   private void addOperationParameters(final Operation operation,

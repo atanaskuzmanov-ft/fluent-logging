@@ -11,67 +11,43 @@ public class CompoundOperation implements AutoCloseable {
   private Object actorOrLogger;
 
   private Parameters parameters;
-
-  CompoundOperation(final String operation) {
-    checkNotNull(operation, "provide a name for the operation");
-    this.operation = operation;
-  }
+  private boolean action;
 
   CompoundOperation(
       final String operation,
       final Object actorOrLogger,
-      final Map<String, Object> parameters
+      final Map<String, Object> parameters,
+      final boolean action
   ) {
     checkNotNull(operation, "provide a name for the operation");
 
     this.operation = operation;
     this.actorOrLogger = actorOrLogger;
     this.parameters = Parameters.parameters(parameters);
+    this.action = action;
   }
 
-  /**
-   * create an Operation, ready for decoration with parameters.
-   *
-   * @param operation name of the operation.
-   * @return an Operation.
-   */
   public static CompoundOperation operation(final String operation, final Object actorOrLogger) {
-    return new CompoundOperation(operation, actorOrLogger, null);
+    return new CompoundOperation(operation, actorOrLogger, null, false);
   }
 
-  public static CompoundOperation action(final String action) {
-    return new CompoundOperation(action);
+  public static CompoundOperation action(final String action, final Object actorOrLogger) {
+    return new CompoundOperation(action, actorOrLogger, null, true);
   }
 
-  /**
-   * add a starting parameter.
-   *
-   * @param key a log key
-   * @param value a value
-   * @return Operation
-   */
+  public boolean isAction() {
+    return action;
+  }
+
   public CompoundOperation with(final Key key, final Object value) {
     return with(key.getKey(), value);
   }
 
-  /**
-   * add a starting parameter.
-   *
-   * @param key a log key string
-   * @param value a value
-   * @return Operation
-   */
   public CompoundOperation with(final String key, final Object value) {
     parameters.put(key, value);
     return this;
   }
 
-  /**
-   * add starting parameters from entries in a map.
-   *
-   * @param keyValues a map of parameter key-values
-   * @return Operation
-   */
   public CompoundOperation with(final Map<String, Object> keyValues) {
     parameters.putAll(keyValues);
     return this;
@@ -83,10 +59,6 @@ public class CompoundOperation implements AutoCloseable {
     return this;
   }
 
-  /**
-   * log this success with an <tt>INFO</tt> log-level, using the log context passed when starting
-   * the operation.
-   */
   public void wasSuccessful() {
     new LogFormatter(actorOrLogger).log(this, Outcome.Success, Level.INFO);
   }
@@ -94,6 +66,31 @@ public class CompoundOperation implements AutoCloseable {
   public void wasSuccessful(final Object result) {
     with(Key.Result, result);
     log(getActorOrLogger());
+  }
+
+  public void log() {
+    log(getActorOrLogger());
+  }
+
+  public void log(final Object actorOrLogger) {
+    logInfo(actorOrLogger);
+  }
+
+  public void logDebug(final String debugMessage) {
+    CompoundOperation compoundOperation = new CompoundOperation(
+        operation,
+        actorOrLogger,
+        parameters.getParameters(),
+        isAction()
+    );
+
+    compoundOperation.with(Key.DebugMessage, debugMessage);
+    new LogFormatter(actorOrLogger).log(compoundOperation, null, Level.DEBUG);
+  }
+
+  @Override
+  public void close() {
+
   }
 
   String getName() {
@@ -109,23 +106,6 @@ public class CompoundOperation implements AutoCloseable {
   }
 
 
-  /**
-   * log this success with an <tt>INFO</tt> log-level, using the log context passed when starting
-   * the operation.
-   */
-  public void log() {
-    log(getActorOrLogger());
-  }
-
-  /**
-   * log this success with an <tt>INFO</tt> log-level
-   *
-   * @param actorOrLogger an alternative logger or object for log context
-   */
-  public void log(final Object actorOrLogger) {
-    logInfo(actorOrLogger);
-  }
-
   private void logInfo(Object actorOrLogger) {
     new LogFormatter(actorOrLogger).log(this, null, Level.INFO);
   }
@@ -134,20 +114,5 @@ public class CompoundOperation implements AutoCloseable {
     new LogFormatter(actorOrLogger).log(this, Outcome.Failure, Level.ERROR);
   }
 
-  public void logDebug(final String debugMessage) {
-    CompoundOperation compoundOperation = new CompoundOperation(
-        operation,
-        actorOrLogger,
-        parameters.getParameters()
-    );
-
-    compoundOperation.with(Key.DebugMessage, debugMessage);
-    new LogFormatter(actorOrLogger).log(compoundOperation, null, Level.DEBUG);
-  }
-
-  @Override
-  public void close() {
-
-  }
 
 }

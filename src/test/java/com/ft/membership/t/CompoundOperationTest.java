@@ -59,4 +59,14 @@ public class CompoundOperationTest {
     verifyNoMoreInteractions(mockLogger);
   }
 
+  @Test
+  public void log_simple_action() throws Exception {
+    CompoundOperation.action("compound_action", mockLogger).started().wasSuccessful();
+
+    verify(mockLogger, times(2)).isInfoEnabled();
+    verify(mockLogger).info("action=\"compound_action\"");
+    verify(mockLogger).info("action=\"compound_action\" outcome=\"success\"");
+    verifyNoMoreInteractions(mockLogger);
+  }
+
 }
