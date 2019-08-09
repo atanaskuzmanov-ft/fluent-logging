@@ -13,9 +13,20 @@ public class CompoundOperation implements AutoCloseable {
   private Parameters parameters;
 
   CompoundOperation(final String operation) {
-    checkNotNull(operation, "require operationName");
+    checkNotNull(operation, "provide a name for the operation");
     this.operation = operation;
+  }
 
+  CompoundOperation(
+      final String operation,
+      final Object actorOrLogger,
+      final Map<String, Object> parameters
+  ) {
+    checkNotNull(operation, "provide a name for the operation");
+
+    this.operation = operation;
+    this.actorOrLogger = actorOrLogger;
+    this.parameters = Parameters.parameters(parameters);
   }
 
   /**
@@ -30,14 +41,6 @@ public class CompoundOperation implements AutoCloseable {
 
   public static CompoundOperation action(final String action) {
     return new CompoundOperation(action);
-  }
-
-
-  public CompoundOperation(final String operationName, final Object actorOrLogger,
-      final Map<String, Object> parameters) {
-    this.operation = operationName;
-    this.actorOrLogger = actorOrLogger;
-    this.parameters = Parameters.parameters(parameters);
   }
 
   /**
@@ -85,7 +88,7 @@ public class CompoundOperation implements AutoCloseable {
    * the operation.
    */
   public void wasSuccessful() {
-    new LogFormatter(actorOrLogger).log(this, null, Level.INFO);
+    new LogFormatter(actorOrLogger).log(this, Outcome.Success, Level.INFO);
   }
 
   public void wasSuccessful(final Object result) {
@@ -132,8 +135,14 @@ public class CompoundOperation implements AutoCloseable {
   }
 
   public void logDebug(final String debugMessage) {
-    parameters.put(Key.DebugMessage, debugMessage);
-    new LogFormatter(actorOrLogger).log(this, null, Level.DEBUG);
+    CompoundOperation compoundOperation = new CompoundOperation(
+        operation,
+        actorOrLogger,
+        parameters.getParameters()
+    );
+
+    compoundOperation.with(Key.DebugMessage, debugMessage);
+    new LogFormatter(actorOrLogger).log(compoundOperation, null, Level.DEBUG);
   }
 
   @Override

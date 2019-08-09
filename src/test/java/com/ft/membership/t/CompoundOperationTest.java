@@ -50,6 +50,7 @@ public class CompoundOperationTest {
     operation.wasSuccessful();
 
     verify(mockLogger, times(2)).isInfoEnabled();
+    verify(mockLogger, times(1)).isDebugEnabled();
     verify(mockLogger).info("operation=\"getUserSubscriptions\" userId=\"1234\"");
     verify(mockLogger).debug(
         "operation=\"getUserSubscriptions\" userId=\"1234\" debugMessage=\"The user has a lot of subscriptions\"");

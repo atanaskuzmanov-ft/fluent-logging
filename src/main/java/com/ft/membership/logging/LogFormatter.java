@@ -49,26 +49,31 @@ class LogFormatter {
   }
 
   void log(final CompoundOperation operation, final Outcome outcome, final Level logLevel) {
-    if (logger.isInfoEnabled()) {
-      final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
-      addOperation(operation, msgParams);
-      if (outcome != null) {
-        addOutcome(outcome.getKey(), msgParams);
-      }
-      addOperationParameters(operation, msgParams);
+    final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+    addOperation(operation, msgParams);
+    if (outcome != null) {
+      addOutcome(outcome.getKey(), msgParams);
+    }
+    addOperationParameters(operation, msgParams);
 
-      switch (logLevel) {
-        case DEBUG:
+    switch (logLevel) {
+      case DEBUG:
+        if (logger.isDebugEnabled()) {
           logger.debug(buildMsgString(msgParams));
-          break;
-        case ERROR:
+        }
+        break;
+      case ERROR:
+        if (logger.isErrorEnabled()) {
           logger.error(buildMsgString(msgParams));
-          break;
-        default:
+        }
+        break;
+      default:
+        if (logger.isInfoEnabled()) {
           logger.info(buildMsgString(msgParams));
-      }
+        }
     }
   }
+
 
   void logInfo(final Operation operation, final Outcome outcome) {
     operation.terminated();
@@ -90,9 +95,8 @@ class LogFormatter {
       final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
       addOperation(operation, msgParams);
       addOutcome(OUTCOME_IS_SUCCESS, msgParams);
-      addYield(yield, msgParams);
-      ;
       addOperationParameters(operation, msgParams);
+      addYield(yield, msgParams);
 
       logger.info(buildMsgString(msgParams));
     }
@@ -239,7 +243,5 @@ class LogFormatter {
         return String.format("%s=%s", name, new ToStringWrapper(value).toString());
       }
     }
-
   }
-
 }
