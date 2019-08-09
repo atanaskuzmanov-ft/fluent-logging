@@ -52,7 +52,9 @@ class LogFormatter {
     if (logger.isInfoEnabled()) {
       final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
       addOperation(operation, msgParams);
-      addOutcome(outcome.getKey(), msgParams);
+      if (outcome != null) {
+        addOutcome(outcome.getKey(), msgParams);
+      }
       addOperationParameters(operation, msgParams);
 
       switch (logLevel) {

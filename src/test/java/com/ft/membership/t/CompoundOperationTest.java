@@ -1,10 +1,12 @@
 package com.ft.membership.t;
 
+import static com.ft.membership.logging.CompoundOperation.operation;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import com.ft.membership.logging.CompoundOperation;
-import com.ft.membership.logging.Key;
-import com.ft.membership.logging.Operation;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -12,36 +14,48 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import static com.ft.membership.logging.Operation.operation;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 @RunWith(MockitoJUnitRunner.class)
 public class CompoundOperationTest {
 
-    @Mock
-    Logger mockLogger;
+  @Mock
+  Logger mockLogger;
 
-    @Before
-    public void setup() {
-        Mockito.when(mockLogger.isInfoEnabled()).thenReturn(true);
-        Mockito.when(mockLogger.isErrorEnabled()).thenReturn(true);
-        Mockito.when(mockLogger.isDebugEnabled()).thenReturn(true);
-    }
-    
-    @Test
-    public void log_start_and_success() throws Exception {
+  @Before
+  public void setup() {
+    Mockito.when(mockLogger.isInfoEnabled()).thenReturn(true);
+    Mockito.when(mockLogger.isErrorEnabled()).thenReturn(true);
+    Mockito.when(mockLogger.isDebugEnabled()).thenReturn(true);
+  }
 
-        CompoundOperation.operation("compound_success", mockLogger).started().wasSuccessful();
+  @Test
+  public void log_start_and_success() throws Exception {
 
-        verify(mockLogger,times(2)).isInfoEnabled();
-        verify(mockLogger).info("operation=\"compound_success\"");
-        verify(mockLogger).info("operation=\"compound_success\" outcome=\"success\"");
-        verifyNoMoreInteractions(mockLogger);
-    }
+    CompoundOperation.operation("compound_success", mockLogger).started().wasSuccessful();
+
+    verify(mockLogger, times(2)).isInfoEnabled();
+    verify(mockLogger).info("operation=\"compound_success\"");
+    verify(mockLogger).info("operation=\"compound_success\" outcome=\"success\"");
+    verifyNoMoreInteractions(mockLogger);
+  }
+
+
+  @Test
+  public void compound_operation_should_have_fluent_api() throws Exception {
+    CompoundOperation operation = operation("getUserSubscriptions", mockLogger)
+        .with("userId", "1234")
+        .started();
+
+    operation.logDebug("The user has a lot of subscriptions");
+    operation.with("activeSubscription", "S-12345");
+    operation.wasSuccessful();
+
+    verify(mockLogger, times(2)).isInfoEnabled();
+    verify(mockLogger).info("operation=\"getUserSubscriptions\" userId=\"1234\"");
+    verify(mockLogger).debug(
+        "operation=\"getUserSubscriptions\" userId=\"1234\" debugMessage=\"The user has a lot of subscriptions\"");
+    verify(mockLogger).info(
+        "operation=\"getUserSubscriptions\" outcome=\"success\" userId=\"1234\" activeSubscription=\"S-12345\"");
+    verifyNoMoreInteractions(mockLogger);
+  }
 
 }
