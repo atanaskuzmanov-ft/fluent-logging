@@ -7,32 +7,32 @@ import org.slf4j.event.Level;
 
 public class CompoundOperation implements AutoCloseable {
 
-  private String operation;
+  private String name;
   private Object actorOrLogger;
 
   private Parameters parameters;
   private boolean action;
 
   CompoundOperation(
-      final String operation,
+      final String name,
       final Object actorOrLogger,
       final Map<String, Object> parameters,
       final boolean action
   ) {
-    checkNotNull(operation, "provide a name for the operation");
+    checkNotNull(name, "provide a name for the name");
 
-    this.operation = operation;
+    this.name = name;
     this.actorOrLogger = actorOrLogger;
     this.parameters = Parameters.parameters(parameters);
     this.action = action;
   }
 
-  public static CompoundOperation operation(final String operation, final Object actorOrLogger) {
-    return new CompoundOperation(operation, actorOrLogger, null, false);
+  public static CompoundOperation operation(final String name, final Object actorOrLogger) {
+    return new CompoundOperation(name, actorOrLogger, null, false);
   }
 
-  public static CompoundOperation action(final String action, final Object actorOrLogger) {
-    return new CompoundOperation(action, actorOrLogger, null, true);
+  public static CompoundOperation action(final String name, final Object actorOrLogger) {
+    return new CompoundOperation(name, actorOrLogger, null, true);
   }
 
   public boolean isAction() {
@@ -78,7 +78,7 @@ public class CompoundOperation implements AutoCloseable {
 
   public void logDebug(final String debugMessage) {
     CompoundOperation compoundOperation = new CompoundOperation(
-        operation,
+        name,
         actorOrLogger,
         parameters.getParameters(),
         isAction()
@@ -94,7 +94,7 @@ public class CompoundOperation implements AutoCloseable {
   }
 
   String getName() {
-    return operation;
+    return name;
   }
 
   Map<String, Object> getParameters() {
