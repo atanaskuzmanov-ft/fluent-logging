@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 class LogFormatter {
 
@@ -34,6 +35,52 @@ class LogFormatter {
     }
   }
 
+  void logStart(final CompoundOperation operation) {
+    final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+    addOperation(operation, msgParams);
+    addOperationParameters(operation, msgParams);
+    if (logger.isInfoEnabled()) {
+      logger.info(buildMsgString(msgParams));
+    }
+  }
+
+  void logSuccess(final CompoundOperation operation) {
+    log(operation, Outcome.Success, Level.INFO);
+  }
+
+  void log(final CompoundOperation operation, final Outcome outcome, final Level logLevel) {
+    if (logger.isInfoEnabled()) {
+      final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+      addOperation(operation, msgParams);
+      addOutcome(outcome.getKey(), msgParams);
+      addOperationParameters(operation, msgParams);
+
+      switch (logLevel) {
+        case DEBUG:
+          logger.debug(buildMsgString(msgParams));
+          break;
+        case ERROR:
+          logger.error(buildMsgString(msgParams));
+          break;
+        default:
+          logger.info(buildMsgString(msgParams));
+      }
+    }
+  }
+
+  void logInfo(final Operation operation, final Outcome outcome) {
+    operation.terminated();
+
+    if (logger.isInfoEnabled()) {
+      final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
+      addOperation(operation, msgParams);
+      addOutcome(outcome, msgParams);
+      addOperationParameters(operation, msgParams);
+
+      logger.info(buildMsgString(msgParams));
+    }
+  }
+
   void logInfo(final Operation operation, Yield yield) {
     operation.terminated();
 
@@ -41,8 +88,9 @@ class LogFormatter {
       final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
       addOperation(operation, msgParams);
       addOutcome(OUTCOME_IS_SUCCESS, msgParams);
-      addOperationParameters(operation, msgParams);
       addYield(yield, msgParams);
+      ;
+      addOperationParameters(operation, msgParams);
 
       logger.info(buildMsgString(msgParams));
     }
@@ -70,6 +118,7 @@ class LogFormatter {
       logger.info(failureMessage);
     }
   }
+
 
   void logWarn(Operation operation, Failure failure) {
     operation.terminated();
@@ -121,12 +170,26 @@ class LogFormatter {
     msgParams.add(nameAndValue("operation", operation.getName()));
   }
 
+  private void addOperation(final CompoundOperation operation,
+      final Collection<NameAndValue> msgParams) {
+    msgParams.add(nameAndValue("operation", operation.getName()));
+  }
+
   private void addOperationParameters(final Operation operation,
       final Collection<NameAndValue> msgParams) {
     addParametersAsNamedValues(msgParams, operation.getParameters());
   }
 
+  private void addOperationParameters(final CompoundOperation operation,
+      final Collection<NameAndValue> msgParams) {
+    addParametersAsNamedValues(msgParams, operation.getParameters());
+  }
+
   private void addOutcome(String outcome, final Collection<NameAndValue> msgParams) {
+    msgParams.add(nameAndValue("outcome", outcome));
+  }
+
+  private void addOutcome(Outcome outcome, final Collection<NameAndValue> msgParams) {
     msgParams.add(nameAndValue("outcome", outcome));
   }
 

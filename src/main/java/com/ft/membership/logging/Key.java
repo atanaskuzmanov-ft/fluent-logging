@@ -2,7 +2,8 @@ package com.ft.membership.logging;
 
 public enum Key {
   UserId("userId"),
-  UserEmail("email");
+  UserEmail("email"),
+  Result("result");
 
   private final String key;
 
