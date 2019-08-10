@@ -4,7 +4,8 @@ public enum Key {
   UserId("userId"),
   UserEmail("email"),
   Result("result"),
-  DebugMessage("debugMessage");
+  DebugMessage("debugMessage"),
+  Operation("operation");
 
   private final String key;
 

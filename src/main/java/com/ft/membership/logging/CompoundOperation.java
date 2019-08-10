@@ -2,16 +2,25 @@ package com.ft.membership.logging;
 
 import static com.ft.membership.logging.Preconditions.checkNotNull;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import org.slf4j.event.Level;
 
-public class CompoundOperation implements AutoCloseable {
+public final class CompoundOperation implements AutoCloseable {
 
   private String name;
-  private Object actorOrLogger;
-
   private Parameters parameters;
+
   private boolean action;
+
+  private Object actorOrLogger;
+  static private OperationIdentity operationIdentity;
+  static final Map<String, String> operationIdentityMap = new HashMap<>();
+
+  public static void setOperationIdentity(OperationIdentity op) {
+    operationIdentity = op;
+  }
 
   CompoundOperation(
       final String name,
@@ -20,11 +29,23 @@ public class CompoundOperation implements AutoCloseable {
       final boolean action
   ) {
     checkNotNull(name, "provide a name for the name");
+    checkNotNull(operationIdentity, "provide a function to resolve operation Identity");
 
     this.name = name;
     this.actorOrLogger = actorOrLogger;
     this.parameters = Parameters.parameters(parameters);
     this.action = action;
+
+    if (action) {
+      with(Key.Operation, operationIdentityMap.get(operationIdentity.getIdentity()));
+    } else {
+      operationIdentityMap.put(operationIdentity.getIdentity(), name);
+    }
+  }
+
+  @FunctionalInterface
+  public interface OperationIdentity {
+    String getIdentity();
   }
 
   public static CompoundOperation operation(final String name, final Object actorOrLogger) {
@@ -53,7 +74,6 @@ public class CompoundOperation implements AutoCloseable {
     return this;
   }
 
-
   public CompoundOperation started() {
     new LogFormatter(actorOrLogger).logStart(this);
     return this;
@@ -64,16 +84,12 @@ public class CompoundOperation implements AutoCloseable {
   }
 
   public void wasSuccessful(final Object result) {
+    wasSuccessful(result, Level.INFO);
+  }
+
+  public void wasSuccessful(final Object result, final Level level) {
     with(Key.Result, result);
-    log(getActorOrLogger());
-  }
-
-  public void log() {
-    log(getActorOrLogger());
-  }
-
-  public void log(final Object actorOrLogger) {
-    logInfo(actorOrLogger);
+    logInfo(getActorOrLogger());
   }
 
   public void logDebug(final String debugMessage) {
@@ -105,14 +121,11 @@ public class CompoundOperation implements AutoCloseable {
     return actorOrLogger;
   }
 
-
-  private void logInfo(Object actorOrLogger) {
-    new LogFormatter(actorOrLogger).log(this, null, Level.INFO);
-  }
-
   private void logError(Object actorOrLogger) {
     new LogFormatter(actorOrLogger).log(this, Outcome.Failure, Level.ERROR);
   }
 
-
+  private void logInfo(Object actorOrLogger) {
+    new LogFormatter(actorOrLogger).log(this, null, Level.INFO);
+  }
 }
