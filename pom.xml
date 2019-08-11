@@ -68,11 +68,6 @@
         <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
     </properties>
 
-    <prerequisites>
-        <!-- Versions < 3.2.3 vulnerable to MIM attack on maven central (SSL access to repo) -->
-        <maven>3.2.3</maven>
-    </prerequisites>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

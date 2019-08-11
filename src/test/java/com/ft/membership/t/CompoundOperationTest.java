@@ -63,8 +63,8 @@ public class CompoundOperationTest {
   @Ignore
   @Test
   public void log_simple_action() throws Exception {
+    // TODO Enable this test
     CompoundOperation.setOperationIdentity(() -> "a");
-
     CompoundOperation.action("compound_action", mockLogger).started().wasSuccessful();
 
     verify(mockLogger, times(2)).isInfoEnabled();

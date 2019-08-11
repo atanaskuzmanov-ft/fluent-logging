@@ -89,7 +89,7 @@ public final class CompoundOperation implements AutoCloseable {
 
   public void wasSuccessful(final Object result, final Level level) {
     with(Key.Result, result);
-    logInfo(getActorOrLogger());
+    wasSuccessful();
   }
 
   public void logDebug(final String debugMessage) {
