@@ -35,30 +35,23 @@ class LogFormatter {
     }
   }
 
-  void logStart(final CompoundOperation operation) {
+  void logStart(final OperationContext operation) {
     final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
-    if (operation.isAction()) {
-      addAction(operation, msgParams);
-    } else {
-      addOperation(operation, msgParams);
-    }
+    addOperationType(operation, msgParams);
     addOperationParameters(operation, msgParams);
     if (logger.isInfoEnabled()) {
       logger.info(buildMsgString(msgParams));
     }
   }
 
-  void logSuccess(final CompoundOperation operation) {
+  void logSuccess(final OperationContext operation) {
     log(operation, Outcome.Success, Level.INFO);
   }
 
-  void log(final CompoundOperation operation, final Outcome outcome, final Level logLevel) {
+  void log(final OperationContext operation, final Outcome outcome, final Level logLevel) {
     final Collection<NameAndValue> msgParams = new ArrayList<NameAndValue>();
-    if (operation.isAction()) {
-      addAction(operation, msgParams);
-    } else {
-      addOperation(operation, msgParams);
-    }
+    addOperationType(operation, msgParams);
+
     if (outcome != null) {
       addOutcome(outcome.getKey(), msgParams);
     }
@@ -184,14 +177,8 @@ class LogFormatter {
     msgParams.add(nameAndValue("operation", operation.getName()));
   }
 
-  private void addOperation(final CompoundOperation operation,
-      final Collection<NameAndValue> msgParams) {
-    msgParams.add(nameAndValue("operation", operation.getName()));
-  }
-
-  private void addAction(final CompoundOperation operation,
-      final Collection<NameAndValue> msgParams) {
-    msgParams.add(nameAndValue("action", operation.getName()));
+  private void addOperationType(final OperationContext operation, final Collection<NameAndValue> msgParams) {
+    msgParams.add(nameAndValue(operation.getType(), operation.getName()));
   }
 
   private void addOperationParameters(final Operation operation,
@@ -199,7 +186,7 @@ class LogFormatter {
     addParametersAsNamedValues(msgParams, operation.getParameters());
   }
 
-  private void addOperationParameters(final CompoundOperation operation,
+  private void addOperationParameters(final OperationContext operation,
       final Collection<NameAndValue> msgParams) {
     addParametersAsNamedValues(msgParams, operation.getParameters());
   }

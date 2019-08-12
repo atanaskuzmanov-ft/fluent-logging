@@ -4,17 +4,16 @@ import static com.ft.membership.logging.Preconditions.checkNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+
 import org.slf4j.event.Level;
 
-public final class CompoundOperation implements AutoCloseable {
+public final class OperationContext implements AutoCloseable {
 
+  private OperationState state;
   private String name;
   private Parameters parameters;
-
-  private boolean action;
-
   private Object actorOrLogger;
+
   static private OperationIdentity operationIdentity;
   static final Map<String, String> operationIdentityMap = new HashMap<>();
 
@@ -22,11 +21,10 @@ public final class CompoundOperation implements AutoCloseable {
     operationIdentity = op;
   }
 
-  CompoundOperation(
+  OperationContext(
       final String name,
       final Object actorOrLogger,
-      final Map<String, Object> parameters,
-      final boolean action
+      final Map<String, Object> parameters
   ) {
     checkNotNull(name, "provide a name for the name");
     checkNotNull(operationIdentity, "provide a function to resolve operation Identity");
@@ -34,74 +32,88 @@ public final class CompoundOperation implements AutoCloseable {
     this.name = name;
     this.actorOrLogger = actorOrLogger;
     this.parameters = Parameters.parameters(parameters);
-    this.action = action;
-
-    if (action) {
-      with(Key.Operation, operationIdentityMap.get(operationIdentity.getIdentity()));
-    } else {
-      operationIdentityMap.put(operationIdentity.getIdentity(), name);
-    }
   }
 
-  @FunctionalInterface
-  public interface OperationIdentity {
-    String getIdentity();
+  public static OperationContext operation(final String name, final Object actorOrLogger) {
+    final OperationContext context = new OperationContext(name, actorOrLogger, null);
+    new OperationConstructedState(context);
+    return context;
   }
 
-  public static CompoundOperation operation(final String name, final Object actorOrLogger) {
-    return new CompoundOperation(name, actorOrLogger, null, false);
+  public static OperationContext action(final String name, final Object actorOrLogger) {
+    final OperationContext context = new OperationContext(name, actorOrLogger, null);
+    new ActionConstructedState(context);
+    return context;
   }
 
-  public static CompoundOperation action(final String name, final Object actorOrLogger) {
-    return new CompoundOperation(name, actorOrLogger, null, true);
+  public OperationContext started() {
+    state.start();
+    return this;
   }
 
-  public boolean isAction() {
-    return action;
-  }
-
-  public CompoundOperation with(final Key key, final Object value) {
+  public OperationContext with(final Key key, final Object value) {
     return with(key.getKey(), value);
   }
 
-  public CompoundOperation with(final String key, final Object value) {
-    parameters.put(key, value);
+  public OperationContext with(final String key, final Object value) {
+    state.with(key, value);
     return this;
   }
 
-  public CompoundOperation with(final Map<String, Object> keyValues) {
-    parameters.putAll(keyValues);
-    return this;
-  }
-
-  public CompoundOperation started() {
-    new LogFormatter(actorOrLogger).logStart(this);
+  public OperationContext with(final Map<String, Object> keyValues) {
+    state.with(keyValues);
     return this;
   }
 
   public void wasSuccessful() {
-    new LogFormatter(actorOrLogger).log(this, Outcome.Success, Level.INFO);
+    state.succeed();
   }
 
   public void wasSuccessful(final Object result) {
-    wasSuccessful(result, Level.INFO);
+    with(Key.Result, result);
   }
 
   public void wasSuccessful(final Object result, final Level level) {
+    // TODO decide if we want to support different levels of result logs
+  }
+
+  public void wasFailure() {
+    state.fail();
+  }
+
+  public void wasFailure(final Object result) {
     with(Key.Result, result);
-    wasSuccessful();
+    state.fail();
+  }
+
+  public void wasFailure(final Object result, final Level level) {
+    // TODO decide if we want to support different levels of result logs
+  }
+
+  void log(final Outcome outcome, final Level logLevel) {
+    new LogFormatter(actorOrLogger).log(this, outcome, logLevel);
+  }
+
+  void addParam(final String key, final Object value) {
+    parameters.put(key, value);
+  }
+
+  void addParam(final Map<String, Object> keyValues) {
+    parameters.putAll(keyValues);
   }
 
   public void logDebug(final String debugMessage) {
-    CompoundOperation compoundOperation = new CompoundOperation(
+    OperationContext operationContext = new OperationContext(
         name,
         actorOrLogger,
-        parameters.getParameters(),
-        isAction()
+        parameters.getParameters()
     );
 
-    compoundOperation.with(Key.DebugMessage, debugMessage);
-    new LogFormatter(actorOrLogger).log(compoundOperation, null, Level.DEBUG);
+    // TODO Introduce Debug/One-off state for this use-case?
+    new StartedState(operationContext);
+
+    operationContext.with(Key.DebugMessage, debugMessage);
+    new LogFormatter(actorOrLogger).log(operationContext, null, Level.DEBUG);
   }
 
   @Override
@@ -122,11 +134,33 @@ public final class CompoundOperation implements AutoCloseable {
     return actorOrLogger;
   }
 
+  String getType() {
+    return this.state.getType();
+  }
+
+  void setState(OperationState operationState) {
+    this.state = operationState;
+  };
+
+  // Needed for linking operations with actions
+  void addIdentity(final String name) {
+    operationIdentityMap.put(operationIdentity.getIdentity(), name);
+  }
+
+  // Needed for linking operations with actions
+  String getCurrentOperation() {
+    return operationIdentityMap.get(operationIdentity.getIdentity());
+  }
+
   private void logError(Object actorOrLogger) {
     new LogFormatter(actorOrLogger).log(this, Outcome.Failure, Level.ERROR);
   }
 
   private void logInfo(Object actorOrLogger) {
     new LogFormatter(actorOrLogger).log(this, null, Level.INFO);
+  }
+
+  public void log(Level level) {
+    log(null, level);
   }
 }
