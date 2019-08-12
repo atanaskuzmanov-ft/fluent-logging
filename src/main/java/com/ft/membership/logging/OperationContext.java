@@ -2,6 +2,7 @@ package com.ft.membership.logging;
 
 import static com.ft.membership.logging.Preconditions.checkNotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -103,16 +104,21 @@ public final class OperationContext implements AutoCloseable {
   }
 
   public void logDebug(final String debugMessage) {
+    logDebug(debugMessage, Collections.emptyMap());
+  }
+
+  public void logDebug(final String debugMessage, final Map<String, Object> keyValues) {
     OperationContext operationContext = new OperationContext(
         name,
         actorOrLogger,
         parameters.getParameters()
     );
 
-    // TODO Introduce Debug/One-off state for this use-case?
-    new StartedState(operationContext);
+    new IsolatedState(operationContext, this.state.getType());
 
     operationContext.with(Key.DebugMessage, debugMessage);
+    operationContext.with(keyValues);
+
     new LogFormatter(actorOrLogger).log(operationContext, null, Level.DEBUG);
   }
 
