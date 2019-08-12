@@ -26,6 +26,8 @@ public class CompoundOperationTest {
     Mockito.when(mockLogger.isInfoEnabled()).thenReturn(true);
     Mockito.when(mockLogger.isErrorEnabled()).thenReturn(true);
     Mockito.when(mockLogger.isDebugEnabled()).thenReturn(true);
+
+    CompoundOperation.setOperationIdentity(() -> "simpleTraceId");
   }
 
   @Test
@@ -64,8 +66,21 @@ public class CompoundOperationTest {
   @Test
   public void log_simple_action() throws Exception {
     // TODO Enable this test
-    CompoundOperation.setOperationIdentity(() -> "a");
     CompoundOperation.action("compound_action", mockLogger).started().wasSuccessful();
+
+    verify(mockLogger, times(2)).isInfoEnabled();
+    verify(mockLogger).info("action=\"compound_action\"");
+    verify(mockLogger).info("action=\"compound_action\" outcome=\"success\"");
+    verifyNoMoreInteractions(mockLogger);
+  }
+
+  @Ignore
+  @Test
+  public void log_should_consist_of_multiple_states() throws Exception {
+    // TODO Enable this test
+
+    final CompoundOperation compoundAction = CompoundOperation.action("compound_action", mockLogger);
+    compoundAction.started().wasSuccessful();
 
     verify(mockLogger, times(2)).isInfoEnabled();
     verify(mockLogger).info("action=\"compound_action\"");
@@ -76,8 +91,6 @@ public class CompoundOperationTest {
 
   @Test
   public void log_compound_operation_and_action() throws Exception {
-    CompoundOperation.setOperationIdentity(() -> "a");
-
     CompoundOperation operation = CompoundOperation.operation("compound_operation", mockLogger).started();
 
     CompoundOperation.action("compound_action", mockLogger).started().wasSuccessful();

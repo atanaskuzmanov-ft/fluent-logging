@@ -106,7 +106,8 @@ public final class CompoundOperation implements AutoCloseable {
 
   @Override
   public void close() {
-
+    final String id = operationIdentity.getIdentity();
+    operationIdentityMap.remove(id);
   }
 
   String getName() {
