@@ -1,18 +1,20 @@
 package com.ft.membership.logging;
 
-import org.slf4j.event.Level;
-
 import java.util.Map;
 
 public class ActionConstructedState implements OperationState {
-  private OperationContext context;
+  private SimpleOperationContext context;
   private final String type = "action";
 
-  ActionConstructedState(OperationContext operationContext) {
-    context = operationContext;
+  ActionConstructedState(SimpleOperationContext simpleOperationContext) {
+    context = simpleOperationContext;
     context.setState(this);
 
-    context.with(Key.Operation, context.getCurrentOperation());
+    final String currentOperation = context.getCurrentOperation();
+
+    if (currentOperation != null) {
+      context.with(Key.Operation, currentOperation);
+    }
   }
 
   @Override

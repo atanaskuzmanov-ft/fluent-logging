@@ -5,11 +5,11 @@ import org.slf4j.event.Level;
 import java.util.Map;
 
 public class SuccessState implements OperationState {
-  private final OperationContext context;
+  private final SimpleOperationContext context;
   private final String type;
 
-  SuccessState(OperationContext operationContext) {
-    context = operationContext;
+  SuccessState(SimpleOperationContext simpleOperationContext) {
+    context = simpleOperationContext;
     type = context.getType();
     context.setState(this);
 

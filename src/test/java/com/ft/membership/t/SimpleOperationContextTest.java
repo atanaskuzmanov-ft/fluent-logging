@@ -1,13 +1,13 @@
 package com.ft.membership.t;
 
-import static com.ft.membership.logging.OperationContext.operation;
+import static com.ft.membership.logging.SimpleOperationContext.operation;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.ft.membership.logging.OperationContext;
+import com.ft.membership.logging.SimpleOperationContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OperationContextTest {
+public class SimpleOperationContextTest {
 
   @Mock
   Logger mockLogger;
@@ -29,13 +29,13 @@ public class OperationContextTest {
     Mockito.when(mockLogger.isErrorEnabled()).thenReturn(true);
     Mockito.when(mockLogger.isDebugEnabled()).thenReturn(true);
 
-    OperationContext.setOperationIdentity(() -> "simpleTraceId");
+    SimpleOperationContext.setOperationIdentity(() -> "simpleTraceId");
   }
 
   @Test
   public void log_start_and_success() throws Exception {
 
-    OperationContext.operation("compound_success", mockLogger).started().wasSuccessful();
+    SimpleOperationContext.operation("compound_success", mockLogger).started().wasSuccessful();
 
     verify(mockLogger, times(2)).isInfoEnabled();
     verify(mockLogger).info("operation=\"compound_success\"");
@@ -89,11 +89,10 @@ public class OperationContextTest {
   }
 
 
-  @Ignore
   @Test
   public void log_simple_action() throws Exception {
-    // TODO Enable this test
-    OperationContext.action("compound_action", mockLogger).started().wasSuccessful();
+    SimpleOperationContext.setOperationIdentity(() -> null);
+    SimpleOperationContext.action("compound_action", mockLogger).started().wasSuccessful();
 
     verify(mockLogger, times(2)).isInfoEnabled();
     verify(mockLogger).info("action=\"compound_action\"");
@@ -103,9 +102,10 @@ public class OperationContextTest {
 
   @Test
   public void log_compound_operation_and_action() throws Exception {
-    OperationContext operation = OperationContext.operation("compound_operation", mockLogger).started();
+    OperationContext operation = SimpleOperationContext
+        .operation("compound_operation", mockLogger).started();
 
-    OperationContext.action("compound_action", mockLogger).started().wasSuccessful();
+    SimpleOperationContext.action("compound_action", mockLogger).started().wasSuccessful();
 
     operation.wasSuccessful();
     verify(mockLogger, times(4)).isInfoEnabled();

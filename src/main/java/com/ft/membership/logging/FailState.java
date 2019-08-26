@@ -6,10 +6,10 @@ import java.util.Map;
 
 public class FailState implements OperationState {
   private final String type;
-  private OperationContext context;
+  private SimpleOperationContext context;
 
-  public FailState(OperationContext operationContext) {
-    context = operationContext;
+  public FailState(SimpleOperationContext simpleOperationContext) {
+    context = simpleOperationContext;
     type = context.getType();
     context.setState(this);
 

@@ -1,15 +1,15 @@
 package com.ft.membership.logging;
 
-import org.slf4j.event.Level;
 
 import java.util.Map;
 
 public class OperationConstructedState implements OperationState {
-  private OperationContext context;
+
+  private SimpleOperationContext context;
   private final String type = "operation";
 
-  OperationConstructedState(final OperationContext operationContext) {
-    context = operationContext;
+  OperationConstructedState(final SimpleOperationContext simpleOperationContext) {
+    context = simpleOperationContext;
     context.setState(this);
 
     context.addIdentity(context.getName());

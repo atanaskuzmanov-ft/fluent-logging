@@ -6,10 +6,10 @@ import java.util.Map;
 
 public class StartedState implements OperationState {
   private String type;
-  private OperationContext context;
+  private SimpleOperationContext context;
 
-  StartedState(OperationContext operationContext) {
-    context = operationContext;
+  StartedState(SimpleOperationContext simpleOperationContext) {
+    context = simpleOperationContext;
     type = context.getType();
     context.setState(this);
 
