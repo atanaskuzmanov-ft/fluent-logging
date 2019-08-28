@@ -14,6 +14,7 @@ public class SuccessState implements OperationState {
     context.setState(this);
 
     context.log(Outcome.Success, Level.INFO);
+    context.clear();
   }
 
   @Override

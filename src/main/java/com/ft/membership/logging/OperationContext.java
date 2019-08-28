@@ -11,6 +11,11 @@ public abstract class OperationContext implements AutoCloseable {
   protected Object actorOrLogger;
   protected OperationState state;
 
+  protected abstract void clear();
+
+  public abstract void logDebug(final String debugMessage, final Map<String, Object> keyValues);
+
+
   public OperationContext with(final Key key, final Object value) {
     return with(key.getKey(), value);
   }
@@ -60,7 +65,6 @@ public abstract class OperationContext implements AutoCloseable {
     logDebug(debugMessage, Collections.emptyMap());
   }
 
-  public abstract void logDebug(final String debugMessage, final Map<String, Object> keyValues);
 
   public void log(Level level) {
     log(null, level);

@@ -9,12 +9,6 @@ public class ActionConstructedState implements OperationState {
   ActionConstructedState(SimpleOperationContext simpleOperationContext) {
     context = simpleOperationContext;
     context.setState(this);
-
-    final String currentOperation = context.getCurrentOperation();
-
-    if (currentOperation != null) {
-      context.with(Key.Operation, currentOperation);
-    }
   }
 
   @Override

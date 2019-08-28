@@ -14,6 +14,7 @@ public class FailState implements OperationState {
     context.setState(this);
 
     context.log(Outcome.Failure, Level.ERROR);
+    context.clear();
   }
 
   @Override
