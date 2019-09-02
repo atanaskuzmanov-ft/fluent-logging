@@ -9,6 +9,8 @@ public class ActionConstructedState implements OperationState {
   ActionConstructedState(SimpleOperationContext simpleOperationContext) {
     context = simpleOperationContext;
     context.setState(this);
+
+    context.addIdentity(context.getName());
   }
 
   @Override

@@ -1,6 +1,5 @@
 package com.ft.membership.logging;
 
-import java.util.Collections;
 import java.util.Map;
 import org.slf4j.event.Level;
 
@@ -12,9 +11,6 @@ public abstract class OperationContext implements AutoCloseable {
   protected OperationState state;
 
   protected abstract void clear();
-
-  public abstract void logDebug(final String debugMessage, final Map<String, Object> keyValues);
-
 
   public OperationContext with(final Key key, final Object value) {
     return with(key.getKey(), value);
@@ -44,10 +40,6 @@ public abstract class OperationContext implements AutoCloseable {
     this.state.succeed();
   }
 
-  public void wasSuccessful(final Object result, final Level level) {
-    // TODO decide if we want to support different levels of result logs
-  }
-
   public void wasFailure() {
     state.fail();
   }
@@ -56,15 +48,6 @@ public abstract class OperationContext implements AutoCloseable {
     with(Key.Result, result);
     state.fail();
   }
-
-  public void wasFailure(final Object result, final Level level) {
-    // TODO decide if we want to support different levels of result logs
-  }
-
-  public void logDebug(final String debugMessage) {
-    logDebug(debugMessage, Collections.emptyMap());
-  }
-
 
   public void log(Level level) {
     log(null, level);

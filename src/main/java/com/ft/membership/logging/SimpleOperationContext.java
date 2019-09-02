@@ -34,39 +34,14 @@ public final class SimpleOperationContext extends OperationContext {
     return context;
   }
 
-  public void logDebug(final String debugMessage, final Map<String, Object> keyValues) {
-    SimpleOperationContext debugSimpleOperationContext = new SimpleOperationContext(
-        name,
-        actorOrLogger,
-        parameters.getParameters()
-    );
-
-    IsolatedState.from(debugSimpleOperationContext, this.state.getType());
-
-    debugSimpleOperationContext.with(Key.DebugMessage, debugMessage);
-    debugSimpleOperationContext.with(keyValues);
-
-    new LogFormatter(actorOrLogger).log(debugSimpleOperationContext, null, Level.DEBUG);
-  }
-
   @Override
   protected void clear() {
-    if (state.getType() == "operation") {
-      MDC.remove("operation");
-    }
+    MDC.remove(state.getType());
   }
 
   // Needed for linking operations with actions
   void addIdentity(final String name) {
-    MDC.put("operation", name);
-  }
-
-  private void logError(Object actorOrLogger) {
-    new LogFormatter(actorOrLogger).log(this, Outcome.Failure, Level.ERROR);
-  }
-
-  private void logInfo(Object actorOrLogger) {
-    new LogFormatter(actorOrLogger).log(this, null, Level.INFO);
+    MDC.put(state.getType(), name);
   }
 
 }
