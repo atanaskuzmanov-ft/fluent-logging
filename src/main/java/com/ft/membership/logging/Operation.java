@@ -53,6 +53,7 @@ import static com.ft.membership.logging.Preconditions.checkNotNull;
 public class Operation implements AutoCloseable {
 
     private final String operationName;
+    private final boolean layout;
     private Object actorOrLogger;
 
     private boolean terminated;
@@ -68,20 +69,23 @@ public class Operation implements AutoCloseable {
         return new OperationBuilder(operation);
     }
 
-    public Operation(final String operationName, final Object actorOrLogger, final Map<String, Object> parameters) {
+    public Operation(final String operationName, final Object actorOrLogger, final Map<String, Object> parameters, final boolean layout) {
         this.operationName = operationName;
         this.actorOrLogger = actorOrLogger;
         this.parameters = parameters;
+        this.layout = layout;
     }
 
     public static class OperationBuilder extends Parameters {
 
         private final String operationName;
+        private boolean layout;
 
         OperationBuilder(final String operationName){
             checkNotNull(operationName, "require operationName");
             this.operationName = operationName;
         }
+
 
         /**
          * add a starting parameter.
@@ -104,6 +108,11 @@ public class Operation implements AutoCloseable {
             return this;
         }
 
+        public OperationBuilder jsonLayout() {
+            this.layout = true;
+            return this;
+        }
+
         /**
          * add starting parameters from entries in a map.
          * @param keyValues a map of parameter key-values
@@ -123,7 +132,7 @@ public class Operation implements AutoCloseable {
          * @return Operation
          */
         public Operation started(final Object actorOrLogger) {
-            final Operation operation = new Operation(operationName, actorOrLogger, getParameters());
+            final Operation operation = new Operation(operationName, actorOrLogger, getParameters(), layout);
             new LogFormatter(actorOrLogger).logStart(operation);
             return operation;
         }
@@ -137,7 +146,7 @@ public class Operation implements AutoCloseable {
          * @return Operation
          */
         public Operation initiate(final Object actorOrLogger) {
-            return new Operation(operationName, actorOrLogger, getParameters());
+            return new Operation(operationName, actorOrLogger, getParameters(), layout);
         }
     }
 
@@ -180,6 +189,10 @@ public class Operation implements AutoCloseable {
                     .throwingException(new IllegalStateException("Programmer error: operation auto-closed before wasSuccessful() or wasFailure() called.")) // so we at least get a stack-trace
                     .log(Optional.ofNullable(actorOrLogger).orElse(this));
         }
+    }
+
+    public boolean isJsonLayout() {
+        return layout;
     }
 
 }
