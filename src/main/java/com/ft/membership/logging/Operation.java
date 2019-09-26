@@ -53,6 +53,7 @@ import java.util.Optional;
 public class Operation implements AutoCloseable {
 
     private final String operationName;
+    private final boolean layout;
     private Object actorOrLogger;
 
     private boolean terminated;
@@ -68,21 +69,31 @@ public class Operation implements AutoCloseable {
         return new OperationBuilder(operation);
     }
 
+    /**
+     * @deprecated Use {@link OperationBuilder} instead.
+     */
+    @Deprecated
     public Operation(final String operationName, final Object actorOrLogger, final Map<String, Object> parameters) {
+        this(operationName, actorOrLogger, parameters, false);
+    }
+
+    private Operation(final String operationName, final Object actorOrLogger, final Map<String, Object> parameters, final boolean layout) {
         this.operationName = operationName;
         this.actorOrLogger = actorOrLogger;
         this.parameters = parameters;
+        this.layout = layout;
     }
 
     public static class OperationBuilder extends Parameters {
 
         private final String operationName;
+        private boolean layout;
 
         OperationBuilder(final String operationName){
             checkNotNull(operationName, "require operationName");
             this.operationName = operationName;
         }
-
+        
         /**
          * add a starting parameter.
          * @param key a log key
@@ -101,6 +112,11 @@ public class Operation implements AutoCloseable {
          */
         public OperationBuilder with(final String key, final Object value) {
             put(key, value);
+            return this;
+        }
+
+        public OperationBuilder jsonLayout() {
+            this.layout = true;
             return this;
         }
 
@@ -123,7 +139,7 @@ public class Operation implements AutoCloseable {
          * @return Operation
          */
         public Operation started(final Object actorOrLogger) {
-            final Operation operation = new Operation(operationName, actorOrLogger, getParameters());
+            final Operation operation = new Operation(operationName, actorOrLogger, getParameters(), layout);
             new LogFormatter(actorOrLogger).logStart(operation);
             return operation;
         }
@@ -137,7 +153,7 @@ public class Operation implements AutoCloseable {
          * @return Operation
          */
         public Operation initiate(final Object actorOrLogger) {
-            return new Operation(operationName, actorOrLogger, getParameters());
+            return new Operation(operationName, actorOrLogger, getParameters(), layout);
         }
     }
 
@@ -207,5 +223,9 @@ public class Operation implements AutoCloseable {
                     .log(Optional.ofNullable(actorOrLogger).orElse(this));
         }
     }
-    
+
+    public boolean isJsonLayout() {
+        return layout;
+    }
+
 }
