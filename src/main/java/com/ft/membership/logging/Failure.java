@@ -1,8 +1,8 @@
 package com.ft.membership.logging;
 
-import java.util.Map;
-
 import static com.ft.membership.logging.Preconditions.checkNotNull;
+
+import java.util.Map;
 
 public class Failure extends Parameters implements LoggingTerminal {
 
@@ -101,7 +101,7 @@ public class Failure extends Parameters implements LoggingTerminal {
      * @param actorOrLogger logger or object for log context
      */
     public void logInfo(Object actorOrLogger) {
-        new LogFormatter(actorOrLogger).logInfo(operation, this);
+        new LogFormatter(actorOrLogger).logInfo(operation, this, true);
     }
 
     /**
@@ -109,11 +109,11 @@ public class Failure extends Parameters implements LoggingTerminal {
      * @param actorOrLogger logger or object for log context
      */
     public void logWarn(Object actorOrLogger) {
-        new LogFormatter(actorOrLogger).logWarn(operation, this);
+        new LogFormatter(actorOrLogger).logWarn(operation, this, true);
     }
 
     private void logError(Object actorOrLogger) {
-        new LogFormatter(actorOrLogger).logError(operation, this);
+        new LogFormatter(actorOrLogger).logError(operation, this, true);
     }
 
     boolean didThrow() {
