@@ -119,7 +119,7 @@ public class LogFormatter {
             addOperation(operation, msgParams);
             addYield(yield, msgParams);
 
-            logger.warn(buildMsgString(msgParams));
+            logger.warn(buildMsg(operation, msgParams, WARN));
         }
     }
 
@@ -150,7 +150,7 @@ public class LogFormatter {
             addOperation(operation, msgParams);
             addYield(yield, msgParams);
 
-            logger.error(buildMsgString(msgParams));
+            logger.error(buildMsg(operation, msgParams, ERROR));
         }
     }
 
