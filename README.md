@@ -104,4 +104,7 @@ Create operation with jsonLayout:
         final Operation operationJson = Operation.operation("Operation that outputs in JSON format").jsonLayout()
                         .with("argument", UUID.randomUUID()).started(this);
 
- 
+
+## Internal Release
+
+https://jenkins.memb.ft.com/job/fluent-logging/ 
