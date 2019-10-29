@@ -31,7 +31,7 @@ public class LogFormatter {
     private final ObjectWriter objectWriter;
 
     LogFormatter(Object actorOrLogger) {
-        objectWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+        objectWriter = new ObjectMapper().writer();
         checkNotNull(actorOrLogger,"require actor or logger");
         if (actorOrLogger instanceof Logger) {
             logger = (Logger) actorOrLogger;
