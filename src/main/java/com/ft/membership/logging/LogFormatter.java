@@ -187,7 +187,7 @@ public class LogFormatter {
 
         String jsonResult = "";
         try {
-            jsonResult = objectWriter.writeValueAsString(map);
+            jsonResult = objectWriter.writeValueAsString(map).concat(System.lineSeparator());
         } catch (JsonProcessingException e) {
             logger.info("Failed to serialize the object to JSON, error={}", e.getLocalizedMessage());
         }
